@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Rádio Sumýš</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="banner_cont_desc">Main radio banner</string>
+    <string name="now_playing_text">Nyní hraje:</string>
+    <string name="song_def_text">Rádio Sumýš - Blbě čumíš</string>
+    <string name="bandzone_cont_desc">Bandzone banner</string>
 </resources>
