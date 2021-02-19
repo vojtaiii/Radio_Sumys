@@ -25,6 +25,7 @@
             android:id="@+id/now_playing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/merriweather"
             android:text="@string/now_playing_text"
             android:textColor="@color/white"
             android:textSize="18sp"
@@ -33,17 +34,20 @@
             app:layout_constraintHorizontal_bias="0.25"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sumys_banner"
-            app:layout_constraintVertical_bias="0.100000024" />
+            app:layout_constraintVertical_bias="0.100000024"
+            android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/song"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/merriweather"
             android:text="@string/song_def_text"
             android:textColor="@color/white"
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="@id/now_playing"
-            app:layout_constraintTop_toBottomOf="@id/now_playing"/>
+            app:layout_constraintTop_toBottomOf="@id/now_playing"
+            android:visibility="invisible"/>
 
         <ImageView
             android:id="@+id/bandzone_banner"
@@ -53,6 +57,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/song"
             app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="invisible"
             android:contentDescription="@string/bandzone_cont_desc" />
 
         <ImageView
@@ -64,7 +69,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bandzone_banner"
-            app:layout_constraintVertical_bias="0.25" />
+            app:layout_constraintVertical_bias="0.25"
+            android:contentDescription="@string/play_button_cont_desc" />
+
+        <TextView
+            android:id="@+id/current_listeners"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/merriweather_italic"
+            android:text="@string/curr_list_def_text"
+            android:textColor="@color/white"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/play_button"
+            app:layout_constraintVertical_bias="0.7"
+            android:visibility="invisible"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

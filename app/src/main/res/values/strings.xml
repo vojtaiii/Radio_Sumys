@@ -6,4 +6,6 @@
     <string name="now_playing_text">Nyní hraje:</string>
     <string name="song_def_text">Rádio Sumýš - Blbě čumíš</string>
     <string name="bandzone_cont_desc">Bandzone banner</string>
+    <string name="play_button_cont_desc">Play button</string>
+    <string name="curr_list_def_text">Rádio právě poslouchá 5 lidí</string>
 </resources>
