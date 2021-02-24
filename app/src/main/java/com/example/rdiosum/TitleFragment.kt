@@ -44,7 +44,18 @@ class TitleFragment : Fragment() {
                 startPlaying()
             } else stopPlaying()
         })
+
+        // spinning active
+        viewModel.spinning.observe(viewLifecycleOwner, {spinning ->
+            if (spinning) {
+                startSpinning()
+            } else stopSpinning()
+        })
+
         // -----------------------------------------------------------------------------------------
+
+        // setup Media Player
+        viewModel.setMediaPlayer()
 
         // perform initial internet check
         initialInternetCheck()
@@ -52,6 +63,7 @@ class TitleFragment : Fragment() {
         return binding.root
     }
 
+    // -----------------------------------------------------------------------------------------
     // inflate the menu resource file
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -65,6 +77,7 @@ class TitleFragment : Fragment() {
                 onNavDestinationSelected(item, requireView().findNavController())
                 || super.onOptionsItemSelected(item)
     }
+    // -----------------------------------------------------------------------------------------
 
     /**
      * Performs the initial check whether a internet connection is available when the fragment is
@@ -81,11 +94,13 @@ class TitleFragment : Fragment() {
         }
     }
 
+    // -----------------------------------------------------------------------------------------
     /**
      * Play button was pressed and radio should start playing
      */
     private fun startPlaying() {
         initialInternetCheck()
+        viewModel.initializeStream() // start streaming
         // change main button icon
         binding.playButton.setImageResource(R.drawable.stop_button_white)
         // make text views related to streamed content visible
@@ -98,6 +113,7 @@ class TitleFragment : Fragment() {
      * Stop button was pressed and radio should stop playing
      */
     private fun stopPlaying() {
+        viewModel.stopStreaming()
         // change main button icon
         binding.playButton.setImageResource(R.drawable.play_button)
         // make text views related to streamed content visible
@@ -105,4 +121,18 @@ class TitleFragment : Fragment() {
         binding.song.visibility = View.INVISIBLE
         binding.bandzoneBanner.visibility = View.INVISIBLE
     }
+
+    // -----------------------------------------------------------------------------------------
+    /**
+     * Control circular progress bar behaviour
+     */
+    private fun startSpinning() {
+        binding.playButton.visibility = View.INVISIBLE
+        binding.progressBar.visibility = View.VISIBLE
+    }
+    private fun stopSpinning() {
+        binding.progressBar.visibility = View.INVISIBLE
+        binding.playButton.visibility = View.VISIBLE
+    }
 }
+
