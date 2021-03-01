@@ -37,10 +37,15 @@ class TitleViewModel: ViewModel() {
     val spinning: LiveData<Boolean>
         get() = _spinning
 
+    // info file is downloaded
+    private val _downloaded = MutableLiveData<Boolean>()
+    val downloaded: LiveData<Boolean>
+    get() = _downloaded
+
     // ---------------------------------------------------------------------------------------------
 
-    fun playButtonPressed() {
-        if (_playButtonState.value == "stop") {
+    fun playButtonPressed(isInternet: Boolean) {
+        if (_playButtonState.value == "stop" && isInternet) {
             _playButtonState.value = "play"
         } else _playButtonState.value = "stop"
     }
@@ -109,25 +114,49 @@ class TitleViewModel: ViewModel() {
                     withContext(Dispatchers.Main) {
                         when (it) {
                             is DownloadResult.Success -> {
-                                Toast.makeText(
-                                    context,
-                                    "File successfully downloaded",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                _downloaded.value = true
                             }
 
                             is DownloadResult.Error -> {
-                                Toast.makeText(
-                                    context,
-                                    "Error while downloading file",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Log.e("TitleViewModel", "Downloading of .xspf file failed")
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Parse the downloaded .xspf document in a very naive and simple way.
+     * Returns a list of strings:
+     *  [0] - author
+     *  [1] - song title
+     *  [2] - number of current listeners
+     */
+    fun parseXSPF(context: Context): List<String> {
+        val folder = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+        val fileName = "sumys_info.xspf"
+        val file = File(folder, fileName)
+
+        // read all the lines in the document
+        val lines: List<String>
+        try {
+            lines= file.readLines()
+        } catch (e: Exception) {
+            Log.e("TitleViewModel", "Error when parsing .xspf file, ${e.printStackTrace()}")
+            return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
+        }
+
+        val authorLine: String = lines[7]
+        val songTitleLine: String = lines[8]
+        val currListenersLine: String = lines[13]
+
+        val author: String = authorLine.substringAfter("<creator>").substringBefore("</creator>")
+        val songTitle: String = songTitleLine.substringAfter("<title>").substringBefore("</title>")
+        val currListeners: String = currListenersLine.substringAfter("Current Listeners: ")
+
+        return mutableListOf(author, songTitle, currListeners)
     }
 
 

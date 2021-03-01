@@ -1,11 +1,14 @@
 package com.example.rdiosum
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
-import androidx.fragment.app.Fragment
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -17,11 +20,14 @@ class TitleFragment : Fragment() {
     private lateinit var binding: FragmentTitleBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
 
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate<FragmentTitleBinding>(inflater, R.layout.fragment_title,
-            container, false)
+        binding = DataBindingUtil.inflate<FragmentTitleBinding>(
+            inflater, R.layout.fragment_title,
+            container, false
+        )
 
         // notify the fragment the options are here
         setHasOptionsMenu(true)
@@ -30,10 +36,14 @@ class TitleFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(TitleViewModel::class.java)
 
         // -----------------------------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------------------
         // LISTENERS ATTACHMENT
 
         // play button state
-        binding.playButton.setOnClickListener { viewModel.playButtonPressed() }
+        binding.playButton.setOnClickListener {
+            val isInternet = context?.let { Utils.isOnline(it) } == true
+            viewModel.playButtonPressed(isInternet) }
 
         // -----------------------------------------------------------------------------------------
         // OBSERVERS ATTACHMENT
@@ -41,17 +51,23 @@ class TitleFragment : Fragment() {
         // play button state
         viewModel.playButtonState.observe(viewLifecycleOwner, { playButtonState ->
             if (playButtonState == "stop") {
-                startPlaying()
+                initializePlaying()
             } else stopPlaying()
         })
 
         // spinning active
-        viewModel.spinning.observe(viewLifecycleOwner, {spinning ->
+        viewModel.spinning.observe(viewLifecycleOwner, { spinning ->
             if (spinning) {
                 startSpinning()
-            } else stopSpinning()
+            } else {
+                stopSpinning()
+            }
         })
 
+        // info content downloaded
+        viewModel.downloaded.observe(viewLifecycleOwner, { downloaded ->
+            if (downloaded) parseInfo()
+        })
         // -----------------------------------------------------------------------------------------
 
         // setup Media Player
@@ -63,7 +79,9 @@ class TitleFragment : Fragment() {
         return binding.root
     }
 
-    // -----------------------------------------------------------------------------------------
+
+
+    // ---------------------------------------------------------------------------------------------
     // inflate the menu resource file
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -84,29 +102,39 @@ class TitleFragment : Fragment() {
      * created. If true, collects data about current radio state from server and displays
      * number of listeners.
      */
+    @SuppressLint("SetTextI18n")
     private fun initialInternetCheck() {
         // check internet
         val isInternet = context?.let { Utils.isOnline(it) } == true
-        Log.i("TitleFragment", "internet check = $isInternet")
         // download xspf file
         if (isInternet) {
             context?.let { viewModel.downloadXSPF(it) }
         }
     }
 
-    // -----------------------------------------------------------------------------------------
+    private fun internetCheck(): Boolean {
+        // check internet
+        val isInternet = context?.let { Utils.isOnline(it) } == true
+        return if (!isInternet) {
+            Toast.makeText(context, "Musí ti fungovat internet", Toast.LENGTH_SHORT).show()
+            false
+        } else {
+            context?.let { viewModel.downloadXSPF(it) }
+            true
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
     /**
      * Play button was pressed and radio should start playing
      */
-    private fun startPlaying() {
-        initialInternetCheck()
-        viewModel.initializeStream() // start streaming
-        // change main button icon
-        binding.playButton.setImageResource(R.drawable.stop_button_white)
-        // make text views related to streamed content visible
-        binding.nowPlaying.visibility = View.VISIBLE
-        binding.song.visibility = View.VISIBLE
-        binding.bandzoneBanner.visibility = View.VISIBLE
+    private fun initializePlaying() {
+        val isInternet = internetCheck()
+        if (isInternet) {
+            viewModel.initializeStream() // start streaming
+            // change main button icon
+            binding.playButton.setImageResource(R.drawable.stop_button_white)
+        }
     }
 
     /**
@@ -122,7 +150,28 @@ class TitleFragment : Fragment() {
         binding.bandzoneBanner.visibility = View.INVISIBLE
     }
 
-    // -----------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * Make the parsed .xspf data appear in the UI
+     */
+    @SuppressLint("SetTextI18n")
+    private fun parseInfo() {
+        val info = context?.let { viewModel.parseXSPF(it) }
+        binding.song.text = "${info?.get(0)} - ${info?.get(1)}"
+        binding.currentListeners.text = "Rádio právě poslouchá ${info?.get(2)} lidí"
+    }
+
+
+    /**
+     * Audio should be playing now so its time to display song info
+     */
+    private fun showInfo() {
+        binding.nowPlaying.visibility = View.VISIBLE
+        binding.song.visibility = View.VISIBLE
+        binding.bandzoneBanner.visibility = View.VISIBLE
+    }
+
+    // ---------------------------------------------------------------------------------------------
     /**
      * Control circular progress bar behaviour
      */
@@ -131,8 +180,15 @@ class TitleFragment : Fragment() {
         binding.progressBar.visibility = View.VISIBLE
     }
     private fun stopSpinning() {
+        showInfo()
         binding.progressBar.visibility = View.INVISIBLE
         binding.playButton.visibility = View.VISIBLE
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    companion object {
+        private const val INFO_PERIOD: Long = 5000
     }
 }
 
