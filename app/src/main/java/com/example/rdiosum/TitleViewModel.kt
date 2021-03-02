@@ -42,6 +42,8 @@ class TitleViewModel: ViewModel() {
     val downloaded: LiveData<Boolean>
     get() = _downloaded
 
+    var bandzoneAuthor = "Blbě čumíš"
+
     // ---------------------------------------------------------------------------------------------
 
     fun playButtonPressed(isInternet: Boolean) {
@@ -155,6 +157,8 @@ class TitleViewModel: ViewModel() {
         val author: String = authorLine.substringAfter("<creator>").substringBefore("</creator>")
         val songTitle: String = songTitleLine.substringAfter("<title>").substringBefore("</title>")
         val currListeners: String = currListenersLine.substringAfter("Current Listeners: ")
+
+        bandzoneAuthor = author
 
         return mutableListOf(author, songTitle, currListeners)
     }

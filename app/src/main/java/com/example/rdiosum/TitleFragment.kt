@@ -1,6 +1,8 @@
 package com.example.rdiosum
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,19 +16,20 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.example.rdiosum.databinding.FragmentTitleBinding
 
+
 class TitleFragment : Fragment() {
 
     private lateinit var viewModel: TitleViewModel
     private lateinit var binding: FragmentTitleBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
 
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate<FragmentTitleBinding>(
-            inflater, R.layout.fragment_title,
-            container, false
+                inflater, R.layout.fragment_title,
+                container, false
         )
 
         // notify the fragment the options are here
@@ -36,6 +39,15 @@ class TitleFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(TitleViewModel::class.java)
 
         // -----------------------------------------------------------------------------------------
+        // Handler setup for periodic tasks
+        val handler = Handler(Looper.getMainLooper())
+        val runnableCode = object: Runnable { // periodic checking of radio status
+            override fun run() {
+                Log.i("TitleFragment", "Handler run")
+                internetCheck()
+                handler.postDelayed(this, INFO_PERIOD)
+            }
+        }
 
         // -----------------------------------------------------------------------------------------
         // LISTENERS ATTACHMENT
@@ -45,6 +57,11 @@ class TitleFragment : Fragment() {
             val isInternet = context?.let { Utils.isOnline(it) } == true
             viewModel.playButtonPressed(isInternet) }
 
+        // creates an intent to bandzone search page
+        binding.bandzoneBanner.setOnClickListener {
+            bandzoneIntent()
+        }
+
         // -----------------------------------------------------------------------------------------
         // OBSERVERS ATTACHMENT
 
@@ -52,7 +69,10 @@ class TitleFragment : Fragment() {
         viewModel.playButtonState.observe(viewLifecycleOwner, { playButtonState ->
             if (playButtonState == "stop") {
                 initializePlaying()
-            } else stopPlaying()
+            } else {
+                handler.removeCallbacksAndMessages(null) // disable periodic checking
+                stopPlaying()
+            }
         })
 
         // spinning active
@@ -60,6 +80,7 @@ class TitleFragment : Fragment() {
             if (spinning) {
                 startSpinning()
             } else {
+                handler.postDelayed(runnableCode, 500) // start periodic checking of radio status
                 stopSpinning()
             }
         })
@@ -78,8 +99,6 @@ class TitleFragment : Fragment() {
 
         return binding.root
     }
-
-
 
     // ---------------------------------------------------------------------------------------------
     // inflate the menu resource file
@@ -145,7 +164,6 @@ class TitleFragment : Fragment() {
         // change main button icon
         binding.playButton.setImageResource(R.drawable.play_button)
         // make text views related to streamed content visible
-        binding.nowPlaying.visibility = View.INVISIBLE
         binding.song.visibility = View.INVISIBLE
         binding.bandzoneBanner.visibility = View.INVISIBLE
     }
@@ -166,7 +184,6 @@ class TitleFragment : Fragment() {
      * Audio should be playing now so its time to display song info
      */
     private fun showInfo() {
-        binding.nowPlaying.visibility = View.VISIBLE
         binding.song.visibility = View.VISIBLE
         binding.bandzoneBanner.visibility = View.VISIBLE
     }
@@ -186,7 +203,22 @@ class TitleFragment : Fragment() {
     }
 
     // ---------------------------------------------------------------------------------------------
+    /**
+     * Creates an intent with bandzone web page
+     */
+    fun bandzoneIntent() {
+        val author = viewModel.bandzoneAuthor
+        val url = "https://bandzone.cz/hledani.html?q=$author"
+        val i = Intent(Intent.ACTION_VIEW)
+        i.data = Uri.parse(url)
+        try {
+            startActivity(i)
+        } catch (e: Exception) {
+            Log.e("TitleFragment", "Failed to launch intent to bandzone web page")
+        }
+    }
 
+    // ---------------------------------------------------------------------------------------------
     companion object {
         private const val INFO_PERIOD: Long = 5000
     }
