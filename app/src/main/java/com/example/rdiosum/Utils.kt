@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
-import java.io.IOException
+import java.io.*
 
 object Utils {
 
@@ -28,6 +28,36 @@ object Utils {
             }
         }
         return false
+    }
+
+    /**
+     * Creates a temporary file which which Media Player can read.
+     * For .ogg files only (can be changed).
+     */
+    fun takeInputStream(stream: InputStream): FileInputStream? {
+        try {
+            val convertedFile = File.createTempFile("convertedFile", ".ogg", null)
+            Log.i("Utility", "Successful file and folder creation.")
+            val out = FileOutputStream(convertedFile)
+            Log.i("Utility", "Successful set as outputStream")
+
+            // rewrite the file
+            val buffer = ByteArray(16384)
+            var length = 0
+            while (stream.read(buffer).also { length = it } != -1) {
+                out.write(buffer, 0, length)
+            }
+
+            //stream.read(buffer);
+            Log.i("Utility", "Buffer is filled")
+            out.close()
+
+            return FileInputStream(convertedFile)
+
+        } catch (e: Exception) {
+            Log.e("Utility", "Error when creating temp file, exception = ${e.message}")
+            return null
+        }
     }
 
 }

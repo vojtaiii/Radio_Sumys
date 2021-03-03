@@ -63,6 +63,11 @@ class TitleFragment : Fragment() {
             bandzoneIntent()
         }
 
+        // miscellaneous
+        binding.sumysBanner.setOnClickListener {
+            Toast.makeText(context, "Blbě čumíš", Toast.LENGTH_SHORT).show()
+        }
+
         // -----------------------------------------------------------------------------------------
         // OBSERVERS ATTACHMENT
 
@@ -70,7 +75,9 @@ class TitleFragment : Fragment() {
         viewModel.playButtonState.observe(viewLifecycleOwner, { playButtonState ->
             Log.i("TitleFragment", "Play button pressed, value = $playButtonState")
             if (playButtonState == "stop") {
-                if (!viewModel.playing) initializePlaying(runnableCode)
+                if (!viewModel.playing) {
+                    initializePlaying(runnableCode)
+                } else binding.playButton.setImageResource(R.drawable.stop_button_white)
             } else {
                 handler.removeCallbacksAndMessages(null) // disable periodic checking
                 stopPlaying()

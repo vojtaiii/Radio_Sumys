@@ -8,4 +8,20 @@
     <string name="bandzone_cont_desc">Bandzone banner</string>
     <string name="play_button_cont_desc">Play button</string>
     <string name="curr_list_def_text">Rádio právě poslouchá xxx lidí</string>
+    <string name="baner2_cnt">Main banner in about section</string>
+    <string name="free_text">Rádio Sumýš - nezávislé punkové rádio</string>
+    <string name="mara">Mára</string>
+    <string name="mara_2">Máš kapelu? Pokud chceš slyšet svoje songy na rádiu Sumýš, napiš Márovi, připrav si songy vlastní tvorby, bio o kapelce a rozjedeme to!</string>
+    <string name="mara_3">uhlir.mara@seznam.cz</string>
+    <string name="martus_1">Martus</string>
+    <string name="martus_2">Máš technickou? Jestli máš připomínku k (ne)funkčnosti rádia, nápad na vylepšení nebo jinou hovadinu na srdci? Napiš Marťákovi, budeme rádi za každý názor!</string>
+    <string name="martus_3">martus9519@seznam.cz</string>
+    <string name="vojta_1">Vojta</string>
+    <string name="vojta_2">Tvůrce android aplikace k rádiu</string>
+    <string name="vojta_3">vojta.illner@gmail.com</string>
+    <string name="miky_1">Miky</string>
+    <string name="miky_2">Rádiový artwork</string>
+    <string name="pivo_cnt">Kup nam pivo</string>
+    <string name="fb_cnt">fb content</string>
+    <string name="instagram_cnt">instagram content</string>
 </resources>
