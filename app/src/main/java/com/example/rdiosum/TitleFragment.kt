@@ -21,6 +21,7 @@ class TitleFragment : Fragment() {
 
     private lateinit var viewModel: TitleViewModel
     private lateinit var binding: FragmentTitleBinding
+    private lateinit var handler: Handler
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -40,7 +41,7 @@ class TitleFragment : Fragment() {
 
         // -----------------------------------------------------------------------------------------
         // Handler setup for periodic tasks
-        val handler = Handler(Looper.getMainLooper())
+        handler = Handler(Looper.getMainLooper())
         val runnableCode = object: Runnable { // periodic checking of radio status
             override fun run() {
                 Log.i("TitleFragment", "Handler run")
@@ -67,8 +68,9 @@ class TitleFragment : Fragment() {
 
         // play button state
         viewModel.playButtonState.observe(viewLifecycleOwner, { playButtonState ->
+            Log.i("TitleFragment", "Play button pressed, value = $playButtonState")
             if (playButtonState == "stop") {
-                initializePlaying()
+                if (!viewModel.playing) initializePlaying(runnableCode)
             } else {
                 handler.removeCallbacksAndMessages(null) // disable periodic checking
                 stopPlaying()
@@ -80,7 +82,6 @@ class TitleFragment : Fragment() {
             if (spinning) {
                 startSpinning()
             } else {
-                handler.postDelayed(runnableCode, 500) // start periodic checking of radio status
                 stopSpinning()
             }
         })
@@ -93,9 +94,6 @@ class TitleFragment : Fragment() {
 
         // setup Media Player
         viewModel.setMediaPlayer()
-
-        // perform initial internet check
-        initialInternetCheck()
 
         return binding.root
     }
@@ -147,8 +145,10 @@ class TitleFragment : Fragment() {
     /**
      * Play button was pressed and radio should start playing
      */
-    private fun initializePlaying() {
+    private fun initializePlaying(runnableCode: Runnable) {
+        viewModel.playing = true
         val isInternet = internetCheck()
+        handler.postDelayed(runnableCode, 1000) // start periodic checking of radio status
         if (isInternet) {
             viewModel.initializeStream() // start streaming
             // change main button icon
@@ -160,10 +160,11 @@ class TitleFragment : Fragment() {
      * Stop button was pressed and radio should stop playing
      */
     private fun stopPlaying() {
+        viewModel.playing = false
         viewModel.stopStreaming()
         // change main button icon
         binding.playButton.setImageResource(R.drawable.play_button)
-        // make text views related to streamed content visible
+        // make text views related to streamed content invisible
         binding.song.visibility = View.INVISIBLE
         binding.bandzoneBanner.visibility = View.INVISIBLE
     }
@@ -197,7 +198,7 @@ class TitleFragment : Fragment() {
         binding.progressBar.visibility = View.VISIBLE
     }
     private fun stopSpinning() {
-        showInfo()
+        if (viewModel.playing) showInfo()
         binding.progressBar.visibility = View.INVISIBLE
         binding.playButton.visibility = View.VISIBLE
     }
@@ -220,7 +221,7 @@ class TitleFragment : Fragment() {
 
     // ---------------------------------------------------------------------------------------------
     companion object {
-        private const val INFO_PERIOD: Long = 5000
+        private const val INFO_PERIOD: Long = 8000
     }
 }
 

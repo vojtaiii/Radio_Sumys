@@ -43,6 +43,7 @@ class TitleViewModel: ViewModel() {
     get() = _downloaded
 
     var bandzoneAuthor = "Blbě čumíš"
+    var playing = false
 
     // ---------------------------------------------------------------------------------------------
 
@@ -150,9 +151,18 @@ class TitleViewModel: ViewModel() {
             return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
         }
 
-        val authorLine: String = lines[7]
-        val songTitleLine: String = lines[8]
-        val currListenersLine: String = lines[13]
+        var authorLine: String = ""
+        var songTitleLine: String = ""
+        var currListenersLine: String = ""
+        try {
+            authorLine = lines[7]
+            songTitleLine = lines[8]
+            currListenersLine = lines[13]
+        } catch (e: Exception) {
+            Log.e("TitleViewModel", "Error when reading .xspf lines, ${e.printStackTrace()}")
+            return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
+        }
+
 
         val author: String = authorLine.substringAfter("<creator>").substringBefore("</creator>")
         val songTitle: String = songTitleLine.substringAfter("<title>").substringBefore("</title>")
