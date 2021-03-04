@@ -1,6 +1,7 @@
 package com.example.rdiosum
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -8,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -28,15 +30,16 @@ class TitleFragment : Fragment() {
     private lateinit var binding: FragmentTitleBinding
     private lateinit var handler: Handler
     private lateinit var notificationManager: NotificationManagerCompat
+    private lateinit var mediaSession: MediaSessionCompat
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
 
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate<FragmentTitleBinding>(
-                inflater, R.layout.fragment_title,
-                container, false
+            inflater, R.layout.fragment_title,
+            container, false
         )
 
         // notify the fragment the options are here
@@ -107,6 +110,7 @@ class TitleFragment : Fragment() {
 
         // setup notifications manager
         notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
+        mediaSession = MediaSessionCompat(context!!, "sumys_tag")
 
         // setup Media Player
         viewModel.setMediaPlayer()
@@ -131,25 +135,14 @@ class TitleFragment : Fragment() {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Performs the initial check whether a internet connection is available when the fragment is
-     * created. If true, collects data about current radio state from server and displays
-     * number of listeners.
+     * Performs check whether a internet connection is available when the fragment is
+     * created. If true, collects data about current radio state from server.
      */
-    @SuppressLint("SetTextI18n")
-    private fun initialInternetCheck() {
-        // check internet
-        val isInternet = context?.let { Utils.isOnline(it) } == true
-        // download xspf file
-        if (isInternet) {
-            context?.let { viewModel.downloadXSPF(it) }
-        }
-    }
-
     private fun internetCheck(): Boolean {
         // check internet
         val isInternet = context?.let { Utils.isOnline(it) } == true
         return if (!isInternet) {
-            Toast.makeText(context, "Musí ti fungovat internet", Toast.LENGTH_SHORT).show()
+            context?.let { Toast.makeText(it, "Musí ti fungovat internet", Toast.LENGTH_SHORT).show() }
             false
         } else {
             context?.let { viewModel.downloadXSPF(it) }
@@ -178,6 +171,7 @@ class TitleFragment : Fragment() {
     private fun stopPlaying() {
         viewModel.playing = false
         viewModel.stopStreaming()
+        notificationManager.cancel(1) // hide the notification
         // change main button icon
         binding.playButton.setImageResource(R.drawable.play_button)
         // make text views related to streamed content invisible
@@ -228,29 +222,34 @@ class TitleFragment : Fragment() {
         val title = "Rádio Sumýš"
         val message = "$author - $song"
 
-        // user clicks the notification
         val activityIntent = Intent(context, MainActivity::class.java)
-        val contentIntent = PendingIntent.getActivity(context,
-                0, activityIntent, 0)
+        activityIntent.action = Intent.ACTION_MAIN
+        activityIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val contentIntent = PendingIntent.getActivity(context, 0, activityIntent, 0)
 
         // picture and its bitmap
         val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
 
         // define the notification looks
         val notification = context?.let { NotificationCompat.Builder(it, CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_sumys_icon)
                 .setLargeIcon(picture)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setStyle(NotificationCompat.BigPictureStyle()
-                        .bigPicture(picture)
-                        .bigLargeIcon(null))
+                .setStyle(
+                    androidx.media.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(mediaSession.sessionToken)
+                )
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .build()
         }
-        if (notification != null) notificationManager.notify(1, notification)
+
+        if (notification != null) {
+            notificationManager.notify(1, notification)
+        }
     }
 
     // ---------------------------------------------------------------------------------------------

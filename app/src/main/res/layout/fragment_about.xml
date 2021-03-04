@@ -214,7 +214,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/miky_1"
+            app:layout_constraintTop_toTopOf="@id/vojta_3"
             android:contentDescription="@string/pivo_cnt" />
 
 

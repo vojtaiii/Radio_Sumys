@@ -4,15 +4,20 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Window
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.example.rdiosum.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var notificationManager: NotificationManagerCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +33,9 @@ class MainActivity : AppCompatActivity() {
         val navController = this.findNavController(R.id.myNavHostFragment)
         // link the navigation controller to the app bar
         NavigationUI.setupActionBarWithNavController(this, navController)
+
+        // setup notifications manager
+        notificationManager = NotificationManagerCompat.from(this)
 
         checkPermissions()
 
@@ -55,5 +63,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (!hasPermission) ActivityCompat.requestPermissions(this, permissionNeeded,0)
+    }
+
+    /**
+     * Hide notification about playing content
+     */
+    override fun onDestroy() {
+        notificationManager.cancel(1)
+        super.onDestroy()
     }
 }

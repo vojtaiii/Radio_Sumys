@@ -153,9 +153,9 @@ class TitleViewModel: ViewModel() {
             return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
         }
 
-        var authorLine: String = ""
-        var songTitleLine: String = ""
-        var currListenersLine: String = ""
+        val authorLine: String
+        val songTitleLine: String
+        val currListenersLine: String
         try {
             authorLine = lines[7]
             songTitleLine = lines[8]
