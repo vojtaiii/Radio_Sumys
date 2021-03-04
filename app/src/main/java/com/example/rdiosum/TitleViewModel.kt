@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -94,6 +95,7 @@ class TitleViewModel: ViewModel() {
         }
     }
 
+    // ---------------------------------------------------------------------------------------------
     /**
      * Downloading the file.
      * Open the output stream to the URI given and dispatches the download file coroutine.
@@ -173,7 +175,7 @@ class TitleViewModel: ViewModel() {
         return mutableListOf(author, songTitle, currListeners)
     }
 
-
+    // ---------------------------------------------------------------------------------------------
     companion object {
         private const val STREAM_URL = "https://stream.sumys.cz/sumys-ogg"
         private const val INFO_URL = "https://stream.sumys.cz/sumys-ogg.xspf"

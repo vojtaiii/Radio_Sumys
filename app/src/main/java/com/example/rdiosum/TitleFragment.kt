@@ -1,7 +1,9 @@
 package com.example.rdiosum
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -9,11 +11,14 @@ import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.example.rdiosum.SumysApplication.Companion.CHANNEL_1_ID
 import com.example.rdiosum.databinding.FragmentTitleBinding
 
 
@@ -22,6 +27,7 @@ class TitleFragment : Fragment() {
     private lateinit var viewModel: TitleViewModel
     private lateinit var binding: FragmentTitleBinding
     private lateinit var handler: Handler
+    private lateinit var notificationManager: NotificationManagerCompat
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -99,6 +105,9 @@ class TitleFragment : Fragment() {
         })
         // -----------------------------------------------------------------------------------------
 
+        // setup notifications manager
+        notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
+
         // setup Media Player
         viewModel.setMediaPlayer()
 
@@ -119,7 +128,7 @@ class TitleFragment : Fragment() {
                 onNavDestinationSelected(item, requireView().findNavController())
                 || super.onOptionsItemSelected(item)
     }
-    // -----------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Performs the initial check whether a internet connection is available when the fragment is
@@ -185,6 +194,7 @@ class TitleFragment : Fragment() {
         val info = context?.let { viewModel.parseXSPF(it) }
         binding.song.text = "${info?.get(0)} - ${info?.get(1)}"
         binding.currentListeners.text = "Rádio právě poslouchá ${info?.get(2)} lidí"
+        info?.get(0)?.let { sendOnSongChannel(it, info[1]) } // send info to notification
     }
 
 
@@ -212,9 +222,42 @@ class TitleFragment : Fragment() {
 
     // ---------------------------------------------------------------------------------------------
     /**
+     * Send notification
+     */
+    private fun sendOnSongChannel(author: String, song: String) {
+        val title = "Rádio Sumýš"
+        val message = "$author - $song"
+
+        // user clicks the notification
+        val activityIntent = Intent(context, MainActivity::class.java)
+        val contentIntent = PendingIntent.getActivity(context,
+                0, activityIntent, 0)
+
+        // picture and its bitmap
+        val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
+
+        // define the notification looks
+        val notification = context?.let { NotificationCompat.Builder(it, CHANNEL_1_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(picture)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigPictureStyle()
+                        .bigPicture(picture)
+                        .bigLargeIcon(null))
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build()
+        }
+        if (notification != null) notificationManager.notify(1, notification)
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    /**
      * Creates an intent with bandzone web page
      */
-    fun bandzoneIntent() {
+    private fun bandzoneIntent() {
         val author = viewModel.bandzoneAuthor
         val url = "https://bandzone.cz/hledani.html?q=$author"
         val i = Intent(Intent.ACTION_VIEW)
