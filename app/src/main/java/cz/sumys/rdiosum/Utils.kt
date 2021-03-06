@@ -1,4 +1,4 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -43,7 +43,7 @@ object Utils {
 
             // rewrite the file
             val buffer = ByteArray(16384)
-            var length = 0
+            var length: Int
             while (stream.read(buffer).also { length = it } != -1) {
                 out.write(buffer, 0, length)
             }

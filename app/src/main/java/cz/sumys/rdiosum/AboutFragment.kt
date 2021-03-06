@@ -1,4 +1,4 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import android.content.Intent
 import android.net.Uri
@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.example.rdiosum.databinding.FragmentAboutBinding
+import cz.sumys.rdiosum.databinding.FragmentAboutBinding
 
 
 class AboutFragment : Fragment() {

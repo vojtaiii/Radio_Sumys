@@ -1,12 +1,9 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import android.content.Context
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Environment
 import android.util.Log
-import android.widget.Toast
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -165,10 +162,19 @@ class TitleViewModel: ViewModel() {
             return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
         }
 
+        val author: String
+        val songTitle: String
+        val currListeners: String
 
-        val author: String = authorLine.substringAfter("<creator>").substringBefore("</creator>")
-        val songTitle: String = songTitleLine.substringAfter("<title>").substringBefore("</title>")
-        val currListeners: String = currListenersLine.substringAfter("Current Listeners: ")
+        author = if (authorLine.contains("<creator>")) {
+            authorLine.substringAfter("<creator>").substringBefore("</creator>")
+        } else "Rádio Sumýš"
+        songTitle = if (songTitleLine.contains("<title>")) {
+            songTitleLine.substringAfter("<title>").substringBefore("</title>")
+        } else "Blbě čumíš"
+        currListeners = if (currListenersLine.contains("Current")) {
+            currListenersLine.substringAfter("Current Listeners: ")
+        } else "xxx"
 
         bandzoneAuthor = author
 

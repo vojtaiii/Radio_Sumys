@@ -1,4 +1,4 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import io.ktor.client.*
 import io.ktor.client.call.*

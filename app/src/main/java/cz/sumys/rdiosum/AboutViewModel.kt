@@ -1,4 +1,4 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import android.content.Context
 import android.media.MediaPlayer

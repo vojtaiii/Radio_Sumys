@@ -1,19 +1,22 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Window
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.example.rdiosum.databinding.ActivityMainBinding
+import cz.sumys.rdiosum.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         // setup binding variable
         val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this,
-            R.layout.activity_main)
+                R.layout.activity_main)
 
         // find the navigation controller
         val navController = this.findNavController(R.id.myNavHostFragment)
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp()
     }
 
+
     /**
      * Checks whether app has ALL permissions, otherwise asks for it
      */
@@ -62,11 +66,11 @@ class MainActivity : AppCompatActivity() {
                 hasPermission = false
             }
         }
-        if (!hasPermission) ActivityCompat.requestPermissions(this, permissionNeeded,0)
+        if (!hasPermission) ActivityCompat.requestPermissions(this, permissionNeeded, 0)
     }
 
     /**
-     * Hide notification about playing content
+     * Hide notification about playing content and unregister the receiver
      */
     override fun onDestroy() {
         notificationManager.cancel(1)

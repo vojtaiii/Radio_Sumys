@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/titleFragment"
-        android:name="com.example.rdiosum.TitleFragment"
+        android:name="cz.sumys.rdiosum.TitleFragment"
         tools:layout="@layout/fragment_title" />
     <fragment
         android:id="@+id/aboutFragment"
-        android:name="com.example.rdiosum.AboutFragment" />
+        android:name="cz.sumys.rdiosum.AboutFragment" />
 </navigation>

@@ -1,9 +1,11 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -20,8 +22,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.example.rdiosum.SumysApplication.Companion.CHANNEL_1_ID
-import com.example.rdiosum.databinding.FragmentTitleBinding
+import cz.sumys.rdiosum.SumysApplication.Companion.CHANNEL_1_ID
+import cz.sumys.rdiosum.databinding.FragmentTitleBinding
 
 
 class TitleFragment : Fragment() {
@@ -110,7 +112,7 @@ class TitleFragment : Fragment() {
 
         // setup notifications manager
         notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
-        mediaSession = MediaSessionCompat(context!!, "sumys_tag")
+        mediaSession = MediaSessionCompat(requireContext(), "sumys_tag")
 
         // setup Media Player
         viewModel.setMediaPlayer()
@@ -168,7 +170,8 @@ class TitleFragment : Fragment() {
     /**
      * Stop button was pressed and radio should stop playing
      */
-    private fun stopPlaying() {
+    fun stopPlaying() {
+        Log.i("TitleFragment", "stopPlaying() called")
         viewModel.playing = false
         viewModel.stopStreaming()
         notificationManager.cancel(1) // hide the notification
@@ -222,11 +225,24 @@ class TitleFragment : Fragment() {
         val title = "Rádio Sumýš"
         val message = "$author - $song"
 
+        // content intent when user presses the notification body
         val activityIntent = Intent(context, MainActivity::class.java)
         activityIntent.action = Intent.ACTION_MAIN
         activityIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val contentIntent = PendingIntent.getActivity(context, 0, activityIntent, 0)
+
+        // action intent for stop button
+        val actionStopIntent = Intent(context, ActionReceiver::class.java)
+        actionStopIntent.putExtra("action", "stop")
+        val pActionStopIntent = PendingIntent.getBroadcast(context,
+                1, actionStopIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        // action intent for notification dismiss
+        val actionDeleteIntent = Intent(context, ActionReceiver::class.java)
+        actionDeleteIntent.putExtra("action", "delete")
+        val pActionDeleteIntent = PendingIntent.getBroadcast(context,
+                1, actionDeleteIntent, 0)
 
         // picture and its bitmap
         val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
@@ -242,6 +258,8 @@ class TitleFragment : Fragment() {
                         .setMediaSession(mediaSession.sessionToken)
                 )
                 .setContentIntent(contentIntent)
+                .addAction(R.drawable.ic_notif_stop, "stop", pActionStopIntent)
+                .setDeleteIntent(pActionDeleteIntent)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .build()
@@ -266,6 +284,23 @@ class TitleFragment : Fragment() {
         } catch (e: Exception) {
             Log.e("TitleFragment", "Failed to launch intent to bandzone web page")
         }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Broadcast receiver when the notification is dismissed
+     */
+    private val broadcastStopReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            viewModel.playButtonPressed(true)
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        // register broadcast receivers
+        context.registerReceiver(broadcastStopReceiver, IntentFilter("NOTIFICATION_DISMISSED"))
+        super.onAttach(context)
     }
 
     // ---------------------------------------------------------------------------------------------

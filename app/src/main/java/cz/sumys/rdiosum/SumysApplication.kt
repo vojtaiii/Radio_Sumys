@@ -1,4 +1,4 @@
-package com.example.rdiosum
+package cz.sumys.rdiosum
 
 import android.app.Application
 import android.app.NotificationChannel
