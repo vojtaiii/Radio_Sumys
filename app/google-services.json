@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "543671386699",
+    "project_id": "radio-sumys",
+    "storage_bucket": "radio-sumys.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543671386699:android:f16b44006cb576194383ce",
+        "android_client_info": {
+          "package_name": "cz.sumys.rdiosum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "543671386699-mkevimpqm6gv2g8vjf0dmehgsgmbpf9n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhG3sy8m6RRmy0ojYAp-n01K6w6I43f1c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "543671386699-mkevimpqm6gv2g8vjf0dmehgsgmbpf9n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

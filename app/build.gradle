@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -73,5 +74,10 @@ dependencies {
 
     // Ktor
     implementation "io.ktor:ktor-client-android:1.2.5"
+
+    // Firebase google services
+    implementation platform('com.google.firebase:firebase-bom:26.6.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-messaging:20.1.6'
 
 }

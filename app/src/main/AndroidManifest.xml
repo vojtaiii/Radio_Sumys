@@ -28,6 +28,12 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <receiver android:name=".ActionReceiver" />
 
         <provider
@@ -43,6 +49,16 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <!-- Here a custom default notification style is declared for firebase incoming
+         messages when app is in the background -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_sumys_icon" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/black" />
+
     </application>
 
 </manifest>
