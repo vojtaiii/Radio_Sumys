@@ -3,220 +3,228 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sumys.android.navigation.AboutFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/titleConstraint"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black">
 
-        <ImageView
-            android:id="@+id/sumys_banner_about"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:src="@drawable/sumys_baner2"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            android:contentDescription="@string/baner2_cnt" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/titleConstraint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black">
 
-        <TextView
-            android:id="@+id/free_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_italic"
-            android:text="@string/free_text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sumys_banner_about"
-            app:layout_constraintVertical_bias="0.000000012"
-            android:textColor="@color/white"
-            android:gravity="center"/>
+            <ImageView
+                android:id="@+id/sumys_banner_about"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+                android:src="@drawable/sumys_baner2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                android:contentDescription="@string/baner2_cnt" />
 
-        <ImageView
-            android:id="@+id/fb"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="20dp"
-            android:src="@drawable/facebook_icon"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/free_text"
-            app:layout_constraintEnd_toStartOf="@id/instagram"
-            android:contentDescription="@string/fb_cnt" />
+            <TextView
+                android:id="@+id/free_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_italic"
+                android:text="@string/free_text"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sumys_banner_about"
+                app:layout_constraintVertical_bias="0.000000012"
+                android:textColor="@color/white"
+                android:gravity="center"/>
 
-        <ImageView
-            android:id="@+id/instagram"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="20dp"
-            android:src="@drawable/instagram_icon"
-            app:layout_constraintStart_toEndOf="@id/fb"
-            app:layout_constraintTop_toBottomOf="@id/free_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:contentDescription="@string/instagram_cnt" />
+            <ImageView
+                android:id="@+id/fb"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="20dp"
+                android:src="@drawable/facebook_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/free_text"
+                app:layout_constraintEnd_toStartOf="@id/instagram"
+                android:contentDescription="@string/fb_cnt" />
 
-        <TextView
-            android:id="@+id/mara_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_bold"
-            android:gravity="center"
-            android:text="@string/mara"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fb"
-            app:layout_constraintVertical_bias="0.05" />
+            <ImageView
+                android:id="@+id/instagram"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="20dp"
+                android:src="@drawable/instagram_icon"
+                app:layout_constraintStart_toEndOf="@id/fb"
+                app:layout_constraintTop_toBottomOf="@id/free_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:contentDescription="@string/instagram_cnt" />
 
-        <TextView
-            android:id="@+id/mara_2"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather"
-            android:gravity="center"
-            android:text="@string/mara_2"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mara_1"/>
+            <TextView
+                android:id="@+id/mara_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_bold"
+                android:gravity="center"
+                android:text="@string/mara"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fb"
+                app:layout_constraintVertical_bias="0.05" />
 
-        <TextView
-            android:id="@+id/mara_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_italic"
-            android:gravity="center"
-            android:text="@string/mara_3"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:paddingTop="5dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mara_2"/>
+            <TextView
+                android:id="@+id/mara_2"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather"
+                android:gravity="center"
+                android:text="@string/mara_2"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mara_1"/>
 
-        <TextView
-            android:id="@+id/martus_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_bold"
-            android:gravity="center"
-            android:text="@string/martus_1"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mara_3"
-            app:layout_constraintVertical_bias="0.100000024" />
+            <TextView
+                android:id="@+id/mara_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_italic"
+                android:gravity="center"
+                android:text="@string/mara_3"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:paddingTop="5dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mara_2"/>
 
-        <TextView
-            android:id="@+id/martus_2"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather"
-            android:gravity="center"
-            android:text="@string/martus_2"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/martus_1"/>
+            <TextView
+                android:id="@+id/martus_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_bold"
+                android:gravity="center"
+                android:text="@string/martus_1"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mara_3"
+                app:layout_constraintVertical_bias="0.100000024" />
 
-        <TextView
-            android:id="@+id/martus_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_italic"
-            android:gravity="center"
-            android:text="@string/martus_3"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:paddingTop="5dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/martus_2"/>
+            <TextView
+                android:id="@+id/martus_2"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather"
+                android:gravity="center"
+                android:text="@string/martus_2"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/martus_1"/>
 
-        <TextView
-            android:id="@+id/vojta_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_bold"
-            android:gravity="center"
-            android:text="@string/vojta_1"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/martus_3"
-            app:layout_constraintVertical_bias="0.100000024" />
+            <TextView
+                android:id="@+id/martus_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_italic"
+                android:gravity="center"
+                android:text="@string/martus_3"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:paddingTop="5dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/martus_2"/>
 
-        <TextView
-            android:id="@+id/vojta_2"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather"
-            android:gravity="center"
-            android:text="@string/vojta_2"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vojta_1"/>
+            <TextView
+                android:id="@+id/vojta_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_bold"
+                android:gravity="center"
+                android:text="@string/vojta_1"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/martus_3"
+                app:layout_constraintVertical_bias="0.100000024" />
 
-        <TextView
-            android:id="@+id/vojta_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_italic"
-            android:gravity="center"
-            android:text="@string/vojta_3"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vojta_2"/>
+            <TextView
+                android:id="@+id/vojta_2"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather"
+                android:gravity="center"
+                android:text="@string/vojta_2"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/vojta_1"/>
 
-        <TextView
-            android:id="@+id/miky_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather_bold"
-            android:gravity="center"
-            android:text="@string/miky_1"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vojta_3"
-            app:layout_constraintVertical_bias="0.11" />
+            <TextView
+                android:id="@+id/vojta_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_italic"
+                android:gravity="center"
+                android:text="@string/vojta_3"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/vojta_2"/>
 
-        <TextView
-            android:id="@+id/miky_2"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/merriweather"
-            android:gravity="center"
-            android:text="@string/miky_2"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/miky_1"/>
+            <TextView
+                android:id="@+id/miky_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather_bold"
+                android:gravity="center"
+                android:text="@string/miky_1"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/vojta_3"
+                app:layout_constraintVertical_bias="0.11" />
 
-        <ImageView
-            android:id="@+id/beer"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/beer"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.95"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/vojta_3"
-            android:contentDescription="@string/pivo_cnt" />
+            <TextView
+                android:id="@+id/miky_2"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/merriweather"
+                android:gravity="center"
+                android:text="@string/miky_2"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/miky_1"/>
+
+            <ImageView
+                android:id="@+id/beer"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/beer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.95"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/vojta_3"
+                android:contentDescription="@string/pivo_cnt" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </ScrollView>
 </layout>
