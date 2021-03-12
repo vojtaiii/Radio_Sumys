@@ -170,7 +170,7 @@ class TitleFragment : Fragment() {
     /**
      * Stop button was pressed and radio should stop playing
      */
-    fun stopPlaying() {
+    private fun stopPlaying() {
         Log.i("TitleFragment", "stopPlaying() called")
         viewModel.playing = false
         viewModel.stopStreaming()
