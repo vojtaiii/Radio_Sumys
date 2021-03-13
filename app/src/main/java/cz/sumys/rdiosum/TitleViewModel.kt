@@ -2,7 +2,9 @@ package cz.sumys.rdiosum
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.net.wifi.WifiManager
 import android.os.Environment
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
@@ -56,7 +58,9 @@ class TitleViewModel: ViewModel() {
      * Prepare the media player to start streaming.
      */
     private val player: MediaPlayer = MediaPlayer()
-    fun setMediaPlayer() {
+    fun setMediaPlayer(context: Context) {
+        // set wake lock so the phone cpu is still ready while streaming
+        player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
         player.setOnCompletionListener {
             //stopPlaying()
         }
@@ -65,6 +69,16 @@ class TitleViewModel: ViewModel() {
             _spinning.value = false
             player.start()
         }
+    }
+
+    /**
+     * Initialize wifi lock
+     */
+    fun acquireWifiLock(wifiLock: WifiManager.WifiLock) {
+        wifiLock.acquire()
+    }
+    fun releaseWifiLock(wifiLock: WifiManager.WifiLock) {
+        wifiLock.release()
     }
 
     /**

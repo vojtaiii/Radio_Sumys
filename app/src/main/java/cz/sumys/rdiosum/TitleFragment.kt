@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,6 +18,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -33,6 +35,7 @@ class TitleFragment : Fragment() {
     private lateinit var handler: Handler
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var mediaSession: MediaSessionCompat
+    private lateinit var wifiLock: WifiManager.WifiLock
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -115,7 +118,11 @@ class TitleFragment : Fragment() {
         mediaSession = MediaSessionCompat(requireContext(), "sumys_tag")
 
         // setup Media Player
-        viewModel.setMediaPlayer()
+        viewModel.setMediaPlayer(requireContext())
+
+        // setup wifi lock
+        val wifiManager = requireContext().getSystemService(Context.WIFI_SERVICE) as WifiManager
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "wifilock")
 
         return binding.root
     }
@@ -159,6 +166,7 @@ class TitleFragment : Fragment() {
     private fun initializePlaying(runnableCode: Runnable) {
         viewModel.playing = true
         val isInternet = internetCheck()
+        viewModel.acquireWifiLock(wifiLock)
         handler.postDelayed(runnableCode, 1000) // start periodic checking of radio status
         if (isInternet) {
             viewModel.initializeStream() // start streaming
@@ -174,6 +182,7 @@ class TitleFragment : Fragment() {
         Log.i("TitleFragment", "stopPlaying() called")
         viewModel.playing = false
         viewModel.stopStreaming()
+        viewModel.releaseWifiLock(wifiLock)
         notificationManager.cancel(1) // hide the notification
         // change main button icon
         binding.playButton.setImageResource(R.drawable.play_button)
