@@ -1,0 +1,22 @@
+<configuration>
+    <!-- Create a file appender for a log in the application's data directory -->
+    <appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>/sdcard/Android/data/cz.sumys.rdiosum/files/SumysApplication/log/foo.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="logcat" class="ch.qos.logback.classic.android.LogcatAppender">
+        <tagEncoder>
+            <pattern>%logger{12}</pattern>
+        </tagEncoder>
+        <encoder>
+            <pattern>[%-20thread] %msg</pattern>
+        </encoder>
+    </appender>
+    <!-- Write INFO (and higher-level) messages to the log file -->
+    <root level="DEBUG">
+        <appender-ref ref="file" />
+        <appender-ref ref="logcat"/>
+    </root>
+</configuration>

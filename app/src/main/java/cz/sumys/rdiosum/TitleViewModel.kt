@@ -1,11 +1,12 @@
 package cz.sumys.rdiosum
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.Environment
 import android.os.PowerManager
-import android.util.Log
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,14 +15,16 @@ import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
-import java.lang.Exception
 
 
 class TitleViewModel: ViewModel() {
+    val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
 
     // ---------------------------------------------------------------------------------------------
     // LIVE DATA
@@ -65,9 +68,16 @@ class TitleViewModel: ViewModel() {
             //stopPlaying()
         }
         player.setOnPreparedListener {
-            Log.i("TitleViewModel", "Player prepared for streaming")
+            log.debug("Player prepared for streaming")
             _spinning.value = false
             player.start()
+        }
+        player.setOnErrorListener { mp, what, extra ->
+            log.debug("Media Player error = WHAT: $what EXTRA: $extra")
+            false
+        }
+        player.setOnBufferingUpdateListener { mp, percent ->
+            log.debug("Media Player buffering update, mp: $mp, percent: $percent")
         }
     }
 
@@ -75,10 +85,44 @@ class TitleViewModel: ViewModel() {
      * Initialize wifi lock
      */
     fun acquireWifiLock(wifiLock: WifiManager.WifiLock) {
-        wifiLock.acquire()
+        try {
+            wifiLock.acquire()
+        } catch (e: Exception) {
+            log.error("Failed to acquire wifi lock")
+        }
     }
     fun releaseWifiLock(wifiLock: WifiManager.WifiLock) {
-        wifiLock.release()
+        try {
+            wifiLock.release()
+        } catch (e: Exception) {
+            log.error("Failed to release wifi lock")
+        }
+    }
+
+    /**
+     * Manage wake locks (seems they might be automatically released)
+     */
+    @SuppressLint("WakelockTimeout")
+    fun reacquireWakeLock(context: Context) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
+        val wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"sumys:wakelock" )
+        wakeLock?.setReferenceCounted(false) // each wake lock can be released with single release()
+        try {
+            wakeLock?.acquire()
+            log.debug("Wake lock reacquired")
+        } catch (e: Exception) {
+            log.error("Failed to reacquire wake lock")
+        }
+    }
+    fun releaseWakeLock(context: Context) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
+        val wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"sumys:wakelock" )
+        try {
+            wakeLock?.release()
+        } catch (e: Exception) {
+            log.error("Failed to release wake lock")
+        }
+
     }
 
     /**
@@ -90,7 +134,7 @@ class TitleViewModel: ViewModel() {
             player.prepareAsync()
             _spinning.value = true
         } catch (e: Exception) {
-            Log.e("TitleViewModel", "Media player initialization failed, ${e.printStackTrace()}")
+            log.error("Media player initialization failed, ${e.printStackTrace()}")
         }
     }
 
@@ -102,10 +146,13 @@ class TitleViewModel: ViewModel() {
             player.pause()
             player.reset()
         } catch (e: Exception) {
-            Log.e("TitleViewModel", "Failed to stop the stream, ${e.printStackTrace()}")
+            log.error("Failed to stop the stream, ${e.printStackTrace()}")
         }
     }
 
+    fun playerTrackInfo() {
+        log.info("Player track info retrieved, info = ${player.trackInfo.size}")
+    }
     // ---------------------------------------------------------------------------------------------
     /**
      * Downloading the file.
@@ -119,8 +166,6 @@ class TitleViewModel: ViewModel() {
         val uri = context.let {
             FileProvider.getUriForFile(it, "${BuildConfig.APPLICATION_ID}.provider", file)
         }
-        Log.i("TitleViewModel", "URI is $uri")
-        Log.i("TitleViewModel", "File: $file")
 
         val ktor = HttpClient(Android)
 
@@ -134,7 +179,7 @@ class TitleViewModel: ViewModel() {
                             }
 
                             is DownloadResult.Error -> {
-                                Log.e("TitleViewModel", "Downloading of .xspf file failed")
+                                log.error("Downloading of .xspf file failed")
                             }
                         }
                     }
@@ -160,7 +205,7 @@ class TitleViewModel: ViewModel() {
         try {
             lines= file.readLines()
         } catch (e: Exception) {
-            Log.e("TitleViewModel", "Error when parsing .xspf file, ${e.printStackTrace()}")
+            log.error("Error when parsing .xspf file, ${e.printStackTrace()}")
             return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
         }
 
@@ -172,7 +217,7 @@ class TitleViewModel: ViewModel() {
             songTitleLine = lines[8]
             currListenersLine = lines[13]
         } catch (e: Exception) {
-            Log.e("TitleViewModel", "Error when reading .xspf lines, ${e.printStackTrace()}")
+            log.error("Error when reading .xspf lines, ${e.printStackTrace()}")
             return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
         }
 

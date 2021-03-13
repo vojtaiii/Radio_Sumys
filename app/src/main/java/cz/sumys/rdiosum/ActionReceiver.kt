@@ -7,11 +7,14 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.core.content.ContextCompat.startActivity
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Class for handling actions from notification
  */
 class ActionReceiver: BroadcastReceiver() {
+    val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
 
     override fun onReceive(context: Context?, intent: Intent?) {
 
@@ -19,7 +22,7 @@ class ActionReceiver: BroadcastReceiver() {
             "stop" -> deleteAction(context)
             "delete" -> deleteAction(context)
         }
-        Log.i("ActionReceiver", "onReceive() reached, action = ${intent?.getStringExtra("action")}")
+       log.debug("onReceive() reached, action = ${intent?.getStringExtra("action")}")
     }
 
 

@@ -16,10 +16,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import cz.sumys.rdiosum.databinding.ActivityMainBinding
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 
 class MainActivity : AppCompatActivity() {
-
+    val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
     private lateinit var notificationManager: NotificationManagerCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {

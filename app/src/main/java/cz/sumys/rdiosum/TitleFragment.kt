@@ -26,9 +26,12 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import cz.sumys.rdiosum.SumysApplication.Companion.CHANNEL_1_ID
 import cz.sumys.rdiosum.databinding.FragmentTitleBinding
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 
 class TitleFragment : Fragment() {
+    val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
 
     private lateinit var viewModel: TitleViewModel
     private lateinit var binding: FragmentTitleBinding
@@ -58,7 +61,8 @@ class TitleFragment : Fragment() {
         handler = Handler(Looper.getMainLooper())
         val runnableCode = object: Runnable { // periodic checking of radio status
             override fun run() {
-                Log.i("TitleFragment", "Handler run")
+                log.debug("Handler run")
+                viewModel.playerTrackInfo()
                 internetCheck()
                 handler.postDelayed(this, INFO_PERIOD)
             }
@@ -87,7 +91,7 @@ class TitleFragment : Fragment() {
 
         // play button state
         viewModel.playButtonState.observe(viewLifecycleOwner, { playButtonState ->
-            Log.i("TitleFragment", "Play button pressed, value = $playButtonState")
+           log.debug("Play button pressed, value = $playButtonState")
             if (playButtonState == "stop") {
                 if (!viewModel.playing) {
                     initializePlaying(runnableCode)
@@ -152,9 +156,12 @@ class TitleFragment : Fragment() {
         val isInternet = context?.let { Utils.isOnline(it) } == true
         return if (!isInternet) {
             context?.let { Toast.makeText(it, "Musí ti fungovat internet", Toast.LENGTH_SHORT).show() }
+            log.debug("Internet check: false")
             false
         } else {
+            context?.let { viewModel.reacquireWakeLock(it) } // reacquire wakelock in each call
             context?.let { viewModel.downloadXSPF(it) }
+            log.debug("Internet check: true")
             true
         }
     }
@@ -179,10 +186,14 @@ class TitleFragment : Fragment() {
      * Stop button was pressed and radio should stop playing
      */
     private fun stopPlaying() {
-        Log.i("TitleFragment", "stopPlaying() called")
+        log.debug("stopPlaying() called")
         viewModel.playing = false
         viewModel.stopStreaming()
+
+        // release wake locks (important)
         viewModel.releaseWifiLock(wifiLock)
+        context?.let { viewModel.releaseWakeLock(it) }
+
         notificationManager.cancel(1) // hide the notification
         // change main button icon
         binding.playButton.setImageResource(R.drawable.play_button)
@@ -291,7 +302,7 @@ class TitleFragment : Fragment() {
         try {
             startActivity(i)
         } catch (e: Exception) {
-            Log.e("TitleFragment", "Failed to launch intent to bandzone web page")
+            log.error("Failed to launch intent to bandzone web page")
         }
     }
 
