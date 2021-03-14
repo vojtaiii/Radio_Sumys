@@ -1,30 +1,30 @@
 package cz.sumys.rdiosum
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.Environment
 import android.os.PowerManager
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.stream.Stream
 
 
 class TitleViewModel: ViewModel() {
     val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
+
 
     // ---------------------------------------------------------------------------------------------
     // LIVE DATA
@@ -56,29 +56,8 @@ class TitleViewModel: ViewModel() {
         } else _playButtonState.value = "stop"
     }
 
-    // ---------------------------------------------------------------------------------------------
-    /**
-     * Prepare the media player to start streaming.
-     */
-    private val player: MediaPlayer = MediaPlayer()
-    fun setMediaPlayer(context: Context) {
-        // set wake lock so the phone cpu is still ready while streaming
-        player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
-        player.setOnCompletionListener {
-            //stopPlaying()
-        }
-        player.setOnPreparedListener {
-            log.debug("Player prepared for streaming")
-            _spinning.value = false
-            player.start()
-        }
-        player.setOnErrorListener { mp, what, extra ->
-            log.debug("Media Player error = WHAT: $what EXTRA: $extra")
-            false
-        }
-        player.setOnBufferingUpdateListener { mp, percent ->
-            log.debug("Media Player buffering update, mp: $mp, percent: $percent")
-        }
+    fun spinningDone() {
+        _spinning.value = false
     }
 
     /**
@@ -87,8 +66,9 @@ class TitleViewModel: ViewModel() {
     fun acquireWifiLock(wifiLock: WifiManager.WifiLock) {
         try {
             wifiLock.acquire()
+            log.debug("Wifi lock reacquired")
         } catch (e: Exception) {
-            log.error("Failed to acquire wifi lock")
+            log.error("Failed to acquire wifi lock, exception: ${e.printStackTrace()}")
         }
     }
     fun releaseWifiLock(wifiLock: WifiManager.WifiLock) {
@@ -111,7 +91,7 @@ class TitleViewModel: ViewModel() {
             wakeLock?.acquire()
             log.debug("Wake lock reacquired")
         } catch (e: Exception) {
-            log.error("Failed to reacquire wake lock")
+            log.error("Failed to reacquire wake lock, exception: ${e.message}")
         }
     }
     fun releaseWakeLock(context: Context) {
@@ -120,7 +100,7 @@ class TitleViewModel: ViewModel() {
         try {
             wakeLock?.release()
         } catch (e: Exception) {
-            log.error("Failed to release wake lock")
+            log.error("Failed to release wake lock, exception: ${e.message}")
         }
 
     }
@@ -128,31 +108,35 @@ class TitleViewModel: ViewModel() {
     /**
      * Start streaming
      */
-    fun initializeStream() {
+    fun initializeStream(context: Context) {
+        _spinning.value = true
         try {
-            player.setDataSource(STREAM_URL)
-            player.prepareAsync()
-            _spinning.value = true
+
+            val sumysIntent = Intent(context, BackgroundSumysService::class.java)
+            // start the service, for API > 26 we can promise its foreground
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                context.startForegroundService(sumysIntent)
+            } else context.startService(sumysIntent)
+
+            log.debug("Send intent to Sumys background stream with foreground intentions")
         } catch (e: Exception) {
-            log.error("Media player initialization failed, ${e.printStackTrace()}")
+            log.error("Failed to send intent to Sumys background stream, ${e.message}")
         }
     }
+
 
     /**
      * Stop streaming.
      */
-    fun stopStreaming() {
+    fun stopStreaming(context: Context) {
         try {
-            player.pause()
-            player.reset()
+            val sumysIntent = Intent(context, BackgroundSumysService::class.java)
+            context.stopService(sumysIntent)
         } catch (e: Exception) {
-            log.error("Failed to stop the stream, ${e.printStackTrace()}")
+            log.error("Failed to stop Sumys background stream, ${e.message}")
         }
     }
 
-    fun playerTrackInfo() {
-        log.info("Player track info retrieved, info = ${player.trackInfo.size}")
-    }
     // ---------------------------------------------------------------------------------------------
     /**
      * Downloading the file.
@@ -242,7 +226,7 @@ class TitleViewModel: ViewModel() {
 
     // ---------------------------------------------------------------------------------------------
     companion object {
-        private const val STREAM_URL = "https://stream.sumys.cz/sumys-ogg"
+        const val STREAM_URL = "https://stream.sumys.cz/sumys-ogg"
         private const val INFO_URL = "https://stream.sumys.cz/sumys-ogg.xspf"
     }
 }

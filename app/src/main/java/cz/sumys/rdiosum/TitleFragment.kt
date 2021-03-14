@@ -1,6 +1,7 @@
 package cz.sumys.rdiosum
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -22,6 +23,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import cz.sumys.rdiosum.SumysApplication.Companion.CHANNEL_1_ID
@@ -62,7 +64,6 @@ class TitleFragment : Fragment() {
         val runnableCode = object: Runnable { // periodic checking of radio status
             override fun run() {
                 log.debug("Handler run")
-                viewModel.playerTrackInfo()
                 internetCheck()
                 handler.postDelayed(this, INFO_PERIOD)
             }
@@ -94,11 +95,11 @@ class TitleFragment : Fragment() {
            log.debug("Play button pressed, value = $playButtonState")
             if (playButtonState == "stop") {
                 if (!viewModel.playing) {
-                    initializePlaying(runnableCode)
+                    context?.let { initializePlaying(runnableCode, it) }
                 } else binding.playButton.setImageResource(R.drawable.stop_button_white)
             } else {
                 handler.removeCallbacksAndMessages(null) // disable periodic checking
-                stopPlaying()
+                context?.let { stopPlaying(it) }
             }
         })
 
@@ -121,12 +122,10 @@ class TitleFragment : Fragment() {
         notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
         mediaSession = MediaSessionCompat(requireContext(), "sumys_tag")
 
-        // setup Media Player
-        viewModel.setMediaPlayer(requireContext())
-
         // setup wifi lock
         val wifiManager = requireContext().getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "wifilock")
+        wifiLock.setReferenceCounted(false) // wifi locks are not unique
 
         return binding.root
     }
@@ -160,6 +159,7 @@ class TitleFragment : Fragment() {
             false
         } else {
             context?.let { viewModel.reacquireWakeLock(it) } // reacquire wakelock in each call
+            viewModel.acquireWifiLock(wifiLock) // reacquire wifi lock in each call
             context?.let { viewModel.downloadXSPF(it) }
             log.debug("Internet check: true")
             true
@@ -170,13 +170,13 @@ class TitleFragment : Fragment() {
     /**
      * Play button was pressed and radio should start playing
      */
-    private fun initializePlaying(runnableCode: Runnable) {
+    private fun initializePlaying(runnableCode: Runnable, context: Context) {
         viewModel.playing = true
         val isInternet = internetCheck()
         viewModel.acquireWifiLock(wifiLock)
         handler.postDelayed(runnableCode, 1000) // start periodic checking of radio status
         if (isInternet) {
-            viewModel.initializeStream() // start streaming
+            viewModel.initializeStream(context) // start streaming
             // change main button icon
             binding.playButton.setImageResource(R.drawable.stop_button_white)
         }
@@ -185,10 +185,10 @@ class TitleFragment : Fragment() {
     /**
      * Stop button was pressed and radio should stop playing
      */
-    private fun stopPlaying() {
+    private fun stopPlaying(context: Context) {
         log.debug("stopPlaying() called")
         viewModel.playing = false
-        viewModel.stopStreaming()
+        viewModel.stopStreaming(context)
 
         // release wake locks (important)
         viewModel.releaseWifiLock(wifiLock)
@@ -244,7 +244,15 @@ class TitleFragment : Fragment() {
     private fun sendOnSongChannel(author: String, song: String) {
         val title = "Rádio Sumýš"
         val message = "$author - $song"
+        val notification = createSongNotification(title, message)
 
+
+        if (notification != null) {
+            notificationManager.notify(1, notification)
+        }
+    }
+
+    private fun createSongNotification(title: String, message: String): Notification? {
         // content intent when user presses the notification body
         val activityIntent = Intent(context, MainActivity::class.java)
         activityIntent.action = Intent.ACTION_MAIN
@@ -268,26 +276,24 @@ class TitleFragment : Fragment() {
         val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
 
         // define the notification looks
-        val notification = context?.let { NotificationCompat.Builder(it, CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.ic_sumys_icon)
-                .setLargeIcon(picture)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setStyle(
-                    androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mediaSession.sessionToken)
-                )
-                .setContentIntent(contentIntent)
-                .addAction(R.drawable.ic_notif_stop, "stop", pActionStopIntent)
-                .setDeleteIntent(pActionDeleteIntent)
-                .setAutoCancel(true)
-                .setOnlyAlertOnce(true)
-                .build()
+        val notification = context?.let {
+            NotificationCompat.Builder(it, CHANNEL_1_ID)
+                    .setSmallIcon(R.drawable.ic_sumys_icon)
+                    .setLargeIcon(picture)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setStyle(
+                            androidx.media.app.NotificationCompat.MediaStyle()
+                                    .setMediaSession(mediaSession.sessionToken)
+                    )
+                    .setContentIntent(contentIntent)
+                    .addAction(R.drawable.ic_notif_stop, "stop", pActionStopIntent)
+                    .setDeleteIntent(pActionDeleteIntent)
+                    .setAutoCancel(true)
+                    .setOnlyAlertOnce(true)
+                    .build()
         }
-
-        if (notification != null) {
-            notificationManager.notify(1, notification)
-        }
+        return notification
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -317,9 +323,20 @@ class TitleFragment : Fragment() {
         }
     }
 
+    /**
+     * Broadcast receiver for spinning info
+     */
+    private val broadcastSpinningReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            viewModel.spinningDone()
+        }
+    }
+
     override fun onAttach(context: Context) {
         // register broadcast receivers
         context.registerReceiver(broadcastStopReceiver, IntentFilter("NOTIFICATION_DISMISSED"))
+        LocalBroadcastManager.getInstance(context).registerReceiver(
+                broadcastSpinningReceiver, IntentFilter("spinning"))
         super.onAttach(context)
     }
 
