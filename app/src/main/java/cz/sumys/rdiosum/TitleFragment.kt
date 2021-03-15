@@ -40,7 +40,6 @@ class TitleFragment : Fragment() {
     private lateinit var handler: Handler
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var mediaSession: MediaSessionCompat
-    private lateinit var wifiLock: WifiManager.WifiLock
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -121,11 +120,6 @@ class TitleFragment : Fragment() {
         // setup notifications manager
         notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
         mediaSession = MediaSessionCompat(requireContext(), "sumys_tag")
-
-        // setup wifi lock
-        val wifiManager = requireContext().getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "wifilock")
-        wifiLock.setReferenceCounted(false) // wifi locks are not unique
 
         return binding.root
     }
