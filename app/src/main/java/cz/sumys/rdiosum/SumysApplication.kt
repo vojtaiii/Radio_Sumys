@@ -1,9 +1,12 @@
 package cz.sumys.rdiosum
 
 import android.app.Application
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import androidx.core.app.NotificationCompat
+import io.ktor.http.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -30,6 +33,7 @@ class SumysApplication: Application() {
             val channelSong = NotificationChannel(
                     CHANNEL_1_ID, "sumys song", NotificationManager.IMPORTANCE_HIGH)
             channelSong.description = "Notification for Sumys playback behaviour"
+            channelSong.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
 
 
             val manager: NotificationManager = getSystemService(NotificationManager::class.java)

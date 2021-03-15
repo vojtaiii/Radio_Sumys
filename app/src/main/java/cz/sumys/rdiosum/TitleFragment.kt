@@ -158,8 +158,6 @@ class TitleFragment : Fragment() {
             log.debug("Internet check: false")
             false
         } else {
-            context?.let { viewModel.reacquireWakeLock(it) } // reacquire wakelock in each call
-            viewModel.acquireWifiLock(wifiLock) // reacquire wifi lock in each call
             context?.let { viewModel.downloadXSPF(it) }
             log.debug("Internet check: true")
             true
@@ -173,7 +171,6 @@ class TitleFragment : Fragment() {
     private fun initializePlaying(runnableCode: Runnable, context: Context) {
         viewModel.playing = true
         val isInternet = internetCheck()
-        viewModel.acquireWifiLock(wifiLock)
         handler.postDelayed(runnableCode, 1000) // start periodic checking of radio status
         if (isInternet) {
             viewModel.initializeStream(context) // start streaming
@@ -189,10 +186,6 @@ class TitleFragment : Fragment() {
         log.debug("stopPlaying() called")
         viewModel.playing = false
         viewModel.stopStreaming(context)
-
-        // release wake locks (important)
-        viewModel.releaseWifiLock(wifiLock)
-        context?.let { viewModel.releaseWakeLock(it) }
 
         notificationManager.cancel(1) // hide the notification
         // change main button icon
@@ -291,6 +284,7 @@ class TitleFragment : Fragment() {
                     .setDeleteIntent(pActionDeleteIntent)
                     .setAutoCancel(true)
                     .setOnlyAlertOnce(true)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .build()
         }
         return notification
