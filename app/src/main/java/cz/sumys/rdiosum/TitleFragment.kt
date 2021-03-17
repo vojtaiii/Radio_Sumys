@@ -40,6 +40,7 @@ class TitleFragment : Fragment() {
     private lateinit var handler: Handler
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var mediaSession: MediaSessionCompat
+    private lateinit var wifiLock: WifiManager.WifiLock
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -79,6 +80,11 @@ class TitleFragment : Fragment() {
         // creates an intent to bandzone search page
         binding.bandzoneBanner.setOnClickListener {
             bandzoneIntent()
+        }
+
+        // pressing the spinner should stop the process
+        binding.progressBar.setOnClickListener {
+            context?.let { it1 -> stopProcess(it1) }
         }
 
         // miscellaneous
@@ -121,6 +127,11 @@ class TitleFragment : Fragment() {
         notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
         mediaSession = MediaSessionCompat(requireContext(), "sumys_tag")
 
+        // setup wifi lock
+        val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "wifilock")
+        wifiLock.setReferenceCounted(false) // wifi locks are not unique
+
         return binding.root
     }
 
@@ -152,6 +163,8 @@ class TitleFragment : Fragment() {
             log.debug("Internet check: false")
             false
         } else {
+            context?.let { viewModel.reacquireWakeLock(it) } // reacquire wakelock in each call
+            viewModel.acquireWifiLock(wifiLock) // reacquire wifi lock in each call
             context?.let { viewModel.downloadXSPF(it) }
             log.debug("Internet check: true")
             true
@@ -165,6 +178,7 @@ class TitleFragment : Fragment() {
     private fun initializePlaying(runnableCode: Runnable, context: Context) {
         viewModel.playing = true
         val isInternet = internetCheck()
+        viewModel.acquireWifiLock(wifiLock)
         handler.postDelayed(runnableCode, 1000) // start periodic checking of radio status
         if (isInternet) {
             viewModel.initializeStream(context) // start streaming
@@ -180,6 +194,10 @@ class TitleFragment : Fragment() {
         log.debug("stopPlaying() called")
         viewModel.playing = false
         viewModel.stopStreaming(context)
+
+        // release wake locks (important)
+        viewModel.releaseWifiLock(wifiLock)
+        context.let { viewModel.releaseWakeLock(it) }
 
         notificationManager.cancel(1) // hide the notification
         // change main button icon
@@ -208,6 +226,16 @@ class TitleFragment : Fragment() {
     private fun showInfo() {
         binding.song.visibility = View.VISIBLE
         binding.bandzoneBanner.visibility = View.VISIBLE
+    }
+
+    /**
+     * The spinner was clicked and the process should be stopped
+     */
+    private fun stopProcess(context: Context) {
+        log.debug("Spinner clicked, cancelling process")
+        handler.removeCallbacksAndMessages(null) // disable periodic checking
+        stopPlaying(context)
+        stopSpinning()
     }
 
     // ---------------------------------------------------------------------------------------------

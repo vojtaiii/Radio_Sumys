@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.IBinder
 import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
@@ -14,28 +16,41 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.Exception
+
 
 class BackgroundSumysService: Service() {
     val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
     private lateinit var player: MediaPlayer
+
+    private lateinit var mHandlerThread: HandlerThread
+    private lateinit var mHandler: Handler
 
     override fun onCreate() {
         log.debug("BackgroundSumysService created")
         startForeground(1, createSongNotification(applicationContext, "Rádio Sumýš", "Blbě čumíš"))
         player = MediaPlayer()
         setMediaPlayer(applicationContext)
+
+        //creates a thread
+        mHandlerThread = HandlerThread("sumys.playbackThread")
+        mHandlerThread.start()
+        mHandler = Handler(mHandlerThread.looper)
     }
 
+    /**
+     * Start the audio stream ON SEPARATE thread using HandlerThread
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        try {
-            log.debug("Stream initialized")
-            player.setDataSource(TitleViewModel.STREAM_URL)
-            player.prepare()
-            player.start()
-            fireSpinningIntent()
-        } catch (e: Exception) {
-            log.error("Failed to start stream, ${e.message}")
+        mHandler.post {
+            try {
+                log.debug("Stream initialized")
+                player.setDataSource(TitleViewModel.STREAM_URL)
+                player.prepare()
+                player.start()
+                fireSpinningIntent()
+            } catch (e: Exception) {
+                log.error("Failed to start stream, ${e.message}")
+            }
         }
         return START_NOT_STICKY
     }
@@ -60,9 +75,6 @@ class BackgroundSumysService: Service() {
     private fun setMediaPlayer(context: Context) {
         // set wake lock so the phone cpu is still ready while streaming
         player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
-        player.setOnCompletionListener {
-            //stopPlaying()
-        }
         player.setOnErrorListener { _, what, extra ->
             log.debug("Media Player error = WHAT: $what EXTRA: $extra")
             false
@@ -95,22 +107,22 @@ class BackgroundSumysService: Service() {
         val mediaSession = MediaSessionCompat(context, "sumys_tag")
 
         // define the notification looks
-        return context?.let {
+        return context.let {
             NotificationCompat.Builder(it, SumysApplication.CHANNEL_1_ID)
-                    .setSmallIcon(R.drawable.ic_sumys_icon)
-                    .setLargeIcon(picture)
-                    .setContentTitle(title)
-                    .setContentText(message)
-                    .setStyle(
-                            androidx.media.app.NotificationCompat.MediaStyle()
-                                    .setMediaSession(mediaSession.sessionToken)
-                    )
-                    .setContentIntent(contentIntent)
-                    .addAction(R.drawable.ic_notif_stop, "stop", pActionStopIntent)
-                    .setDeleteIntent(pActionDeleteIntent)
-                    .setAutoCancel(true)
-                    .setOnlyAlertOnce(true)
-                    .build()
+                .setSmallIcon(R.drawable.ic_sumys_icon)
+                .setLargeIcon(picture)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(
+                    androidx.media.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(mediaSession.sessionToken)
+                )
+                .setContentIntent(contentIntent)
+                .addAction(R.drawable.ic_notif_stop, "stop", pActionStopIntent)
+                .setDeleteIntent(pActionDeleteIntent)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build()
         }
     }
 

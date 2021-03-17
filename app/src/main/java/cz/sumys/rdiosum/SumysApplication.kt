@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class SumysApplication: Application() {
-    private lateinit var log: Logger
+    //private lateinit var log: Logger
 
     /**
      * Called upon the very start of the application.
@@ -21,9 +21,9 @@ class SumysApplication: Application() {
     override fun onCreate() {
         super.onCreate()
 
-        createLogFolder()
+        //createLogFolder()
         createNotificationChannels()
-        log.debug("Sumys application started")
+        //log.debug("Sumys application started")
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -45,24 +45,24 @@ class SumysApplication: Application() {
      * Creates log folder and initializes foo.log and logger
      * Do nothing if already created
      */
-    private fun createLogFolder() {
-        val path = applicationContext.getExternalFilesDir("")!!.absolutePath + "/" +
-                "SumysApplication" + "/" + "log"
-        if (!File(path).exists()) {
-            try {
-                val res = File(path).mkdirs()
-                log = LoggerFactory.getLogger(SumysApplication::class.java)
-                if (res) log.debug("Log directory created")
-                else log.error("Unable to create log folder")
-            } catch (e: SecurityException) {
-                log = LoggerFactory.getLogger(SumysApplication::class.java)
-                log.error("Unable to crate log folder", e)
-
-            }
-
-        }
-        else log = LoggerFactory.getLogger(SumysApplication::class.java)
-    }
+//    private fun createLogFolder() {
+//        val path = applicationContext.getExternalFilesDir("")!!.absolutePath + "/" +
+//                "SumysApplication" + "/" + "log"
+//        if (!File(path).exists()) {
+//            try {
+//                val res = File(path).mkdirs()
+//                log = LoggerFactory.getLogger(SumysApplication::class.java)
+//                if (res) log.debug("Log directory created")
+//                else log.error("Unable to create log folder")
+//            } catch (e: SecurityException) {
+//                log = LoggerFactory.getLogger(SumysApplication::class.java)
+//                log.error("Unable to crate log folder", e)
+//
+//            }
+//
+//        }
+//        else log = LoggerFactory.getLogger(SumysApplication::class.java)
+//    }
 
     // ---------------------------------------------------------------------------------------------
 

@@ -8,6 +8,8 @@ import android.media.MediaPlayer
 import android.net.wifi.WifiManager
 import android.os.Environment
 import android.os.PowerManager
+import androidx.core.app.JobIntentService
+import androidx.core.app.JobIntentService.enqueueWork
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +22,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.stream.Stream
+import cz.sumys.rdiosum.BackgroundSumysService
 
 
 class TitleViewModel: ViewModel() {
@@ -66,14 +69,14 @@ class TitleViewModel: ViewModel() {
     fun initializeStream(context: Context) {
         _spinning.value = true
         try {
-
+            playing = true
             val sumysIntent = Intent(context, BackgroundSumysService::class.java)
-            // start the service, for API > 26 we can promise its foreground
+            // start the service (the execution depends on API version)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 context.startForegroundService(sumysIntent)
             } else context.startService(sumysIntent)
 
-            log.debug("Send intent to Sumys background stream with foreground intentions")
+            log.debug("Send intent to Sumys background stream")
         } catch (e: Exception) {
             log.error("Failed to send intent to Sumys background stream, ${e.message}")
         }
@@ -85,11 +88,57 @@ class TitleViewModel: ViewModel() {
      */
     fun stopStreaming(context: Context) {
         try {
+            playing = false
             val sumysIntent = Intent(context, BackgroundSumysService::class.java)
             context.stopService(sumysIntent)
         } catch (e: Exception) {
             log.error("Failed to stop Sumys background stream, ${e.message}")
         }
+    }
+
+    /**
+     * Initialize wifi lock
+     */
+    fun acquireWifiLock(wifiLock: WifiManager.WifiLock) {
+        try {
+            wifiLock.acquire()
+            log.debug("Wifi lock reacquired")
+        } catch (e: Exception) {
+            log.error("Failed to acquire wifi lock, exception: ${e.message}")
+        }
+    }
+    fun releaseWifiLock(wifiLock: WifiManager.WifiLock) {
+        try {
+            wifiLock.release()
+        } catch (e: Exception) {
+            log.error("Failed to release wifi lock, exception: ${e.message}")
+        }
+    }
+
+    /**
+     * Manage wake locks (seems they might be automatically released)
+     */
+    @SuppressLint("WakelockTimeout")
+    fun reacquireWakeLock(context: Context) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
+        val wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"sumys:wakelock" )
+        wakeLock?.setReferenceCounted(false) // each wake lock can be released with single release()
+        try {
+            wakeLock?.acquire()
+            log.debug("Wake lock reacquired")
+        } catch (e: Exception) {
+            log.error("Failed to reacquire wake lock, exception: ${e.message}")
+        }
+    }
+    fun releaseWakeLock(context: Context) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
+        val wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"sumys:wakelock" )
+        try {
+            if (wakeLock?.isHeld == true) wakeLock.release()
+        } catch (e: Exception) {
+            log.error("Failed to release wake lock, exception: ${e.message}")
+        }
+
     }
 
     // ---------------------------------------------------------------------------------------------
