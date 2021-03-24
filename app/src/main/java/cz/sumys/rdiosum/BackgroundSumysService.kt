@@ -6,21 +6,20 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.media.MediaPlayer
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
-import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.exoplayer2.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
 class BackgroundSumysService: Service() {
     val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
-    private lateinit var player: MediaPlayer
+    private lateinit var player: SimpleExoPlayer
 
     private lateinit var mHandlerThread: HandlerThread
     private lateinit var mHandler: Handler
@@ -28,13 +27,22 @@ class BackgroundSumysService: Service() {
     override fun onCreate() {
         log.debug("BackgroundSumysService created")
         startForeground(1, createSongNotification(applicationContext, "Rádio Sumýš", "Blbě čumíš"))
-        player = MediaPlayer()
-        setMediaPlayer(applicationContext)
 
         //creates a thread
         mHandlerThread = HandlerThread("sumys.playbackThread")
         mHandlerThread.start()
         mHandler = Handler(mHandlerThread.looper)
+        mHandler.post {
+            // initialize and setup exo player
+            player = SimpleExoPlayer.Builder(applicationContext).build()
+            // setup error listener
+            player.addListener(object : Player.EventListener {
+                override fun onPlayerError(error: ExoPlaybackException) {
+                    log.debug("ExoPlayer error, ${error.sourceException.message}")
+                    this@BackgroundSumysService.stopSelf()
+                }
+            })
+        }
     }
 
     /**
@@ -44,25 +52,32 @@ class BackgroundSumysService: Service() {
         mHandler.post {
             try {
                 log.debug("Stream initialized")
-                player.setDataSource(TitleViewModel.STREAM_URL)
+                // exo player plays the media item object
+                val sumysItem = MediaItem.fromUri(TitleViewModel.STREAM_URL)
+                // set the media item to be played
+                player.setMediaItem(sumysItem);
+                // Prepare the player.
                 player.prepare()
-                player.start()
+                // Start the playback.
+                player.play()
                 fireSpinningIntent()
             } catch (e: Exception) {
                 log.error("Failed to start stream, ${e.message}")
+                this.stopSelf()
             }
         }
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
-        try {
-            player.pause()
-            player.reset()
-            player.release()
-            log.debug("Stream released")
-        } catch (e: Exception) {
-            log.error("Failed to release stream, ${e.message}")
+        mHandler.post {
+            try {
+                player.pause()
+                player.release()
+                log.debug("Stream released")
+            } catch (e: Exception) {
+                log.error("Failed to release stream, ${e.message}")
+            }
         }
     }
 
@@ -70,15 +85,6 @@ class BackgroundSumysService: Service() {
         log.debug("Sending spinning intent")
         val intent = Intent("spinning")
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
-    }
-
-    private fun setMediaPlayer(context: Context) {
-        // set wake lock so the phone cpu is still ready while streaming
-        player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
-        player.setOnErrorListener { _, what, extra ->
-            log.debug("Media Player error = WHAT: $what EXTRA: $extra")
-            false
-        }
     }
 
     private fun createSongNotification(context: Context, title: String, message: String): Notification? {

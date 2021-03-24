@@ -31,8 +31,8 @@ class SumysApplication: Application() {
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // channels do not work on lesser versions
             val channelSong = NotificationChannel(
-                    CHANNEL_1_ID, "sumys song", NotificationManager.IMPORTANCE_HIGH)
-            channelSong.description = "Notification for Sumys playback behaviour"
+                    CHANNEL_1_ID, "sumys song", NotificationManager.IMPORTANCE_DEFAULT)
+            channelSong.description = "Notification for radio Sumys playback"
             channelSong.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
 
 
