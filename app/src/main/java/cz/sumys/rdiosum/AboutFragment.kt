@@ -1,6 +1,7 @@
 package cz.sumys.rdiosum
 
 import android.content.Intent
+import android.media.SoundPool
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -15,8 +16,6 @@ import cz.sumys.rdiosum.databinding.FragmentAboutBinding
 
 class AboutFragment : Fragment() {
 
-    private lateinit var viewModel: AboutViewModel
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?): View? {
@@ -24,9 +23,6 @@ class AboutFragment : Fragment() {
         // Inflate the layout for this fragment
         val binding = DataBindingUtil.inflate<FragmentAboutBinding>(inflater,
             R.layout.fragment_about, container, false)
-
-        // initialize the view model
-        viewModel = ViewModelProvider(this).get(AboutViewModel::class.java)
 
         // -----------------------------------------------------------------------------------------
         // LISTENERS
@@ -48,18 +44,28 @@ class AboutFragment : Fragment() {
 
         // miscellaneous
         binding.mara1.setOnClickListener {
-            context?.let { it1 -> viewModel.burp(it1) }
+           playSound(R.raw.burp)
+        }
+        binding.sumysSpace.setOnClickListener {
+            playSound(R.raw.sumys_cut)
         }
 
         // -----------------------------------------------------------------------------------------
-
-        // setup media player
-        viewModel.setMediaPlayer()
 
         return binding.root
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Play a sound using soundPool
+     */
+    private fun playSound(sound: Int) {
+        val soundPool = SoundPool.Builder().build()
+        val soundId = soundPool.load(context, sound, 1)
+        soundPool.setOnLoadCompleteListener { _, _, _ ->
+            soundPool.play(soundId, 1F, 1F, 1, 0, 1F) }
+    }
 
     /**
      * Creates intent with facebook content

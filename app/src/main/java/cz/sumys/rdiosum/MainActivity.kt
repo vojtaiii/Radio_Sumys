@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Window
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import cz.sumys.rdiosum.databinding.ActivityMainBinding
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory
 class MainActivity : AppCompatActivity() {
     val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
     private lateinit var notificationManager: NotificationManagerCompat
+    private lateinit var toolBar: ActionBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +37,16 @@ class MainActivity : AppCompatActivity() {
         val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this,
                 R.layout.activity_main)
 
+        // setup bottom action bar
+        toolBar = supportActionBar!!
+        val bottomNavigation: BottomNavigationView = binding.bottomNavigation
+
         // find the navigation controller
         val navController = this.findNavController(R.id.myNavHostFragment)
-        // link the navigation controller to the app bar
+        // link the navigation controller to the app three dots bar
         NavigationUI.setupActionBarWithNavController(this, navController)
+        // link the navigation controller with the bottom navigation bar
+        NavigationUI.setupWithNavController(bottomNavigation, navController)
 
         // setup notifications manager
         notificationManager = NotificationManagerCompat.from(this)

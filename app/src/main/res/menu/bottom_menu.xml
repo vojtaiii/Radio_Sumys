@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/titleFragment"
+        android:icon="@drawable/ic_note"
+        android:title="Rádio"/>
+
+    <item
+        android:id="@+id/newsFragment"
+        android:icon="@drawable/ic_news"
+        android:title="Novinky"/>
+
+    <item
+        android:id="@+id/bottom_chat"
+        android:icon="@drawable/ic_chat"
+        android:title="Chat"/>
+
+    <item
+        android:id="@+id/bottom_archive"
+        android:icon="@drawable/ic_archive"
+        android:title="Archiv"/>
+
+</menu>
