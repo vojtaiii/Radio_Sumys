@@ -56,10 +56,6 @@
                 android:resource="@xml/external_files"/>
         </provider>
 
-        <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
-
         <!-- Here a custom default notification style is declared for firebase incoming
          messages when app is in the background -->
         <meta-data

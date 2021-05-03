@@ -96,51 +96,6 @@ class TitleViewModel: ViewModel() {
         }
     }
 
-    /**
-     * Initialize wifi lock
-     */
-    fun acquireWifiLock(wifiLock: WifiManager.WifiLock) {
-        try {
-            wifiLock.acquire()
-            log.debug("Wifi lock reacquired")
-        } catch (e: Exception) {
-            log.error("Failed to acquire wifi lock, exception: ${e.message}")
-        }
-    }
-    fun releaseWifiLock(wifiLock: WifiManager.WifiLock) {
-        try {
-            wifiLock.release()
-        } catch (e: Exception) {
-            log.error("Failed to release wifi lock, exception: ${e.message}")
-        }
-    }
-
-    /**
-     * Manage wake locks (seems they might be automatically released)
-     */
-    @SuppressLint("WakelockTimeout")
-    fun reacquireWakeLock(context: Context) {
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
-        val wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"sumys:wakelock" )
-        wakeLock?.setReferenceCounted(false) // each wake lock can be released with single release()
-        try {
-            wakeLock?.acquire()
-            log.debug("Wake lock reacquired")
-        } catch (e: Exception) {
-            log.error("Failed to reacquire wake lock, exception: ${e.message}")
-        }
-    }
-    fun releaseWakeLock(context: Context) {
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
-        val wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"sumys:wakelock" )
-        try {
-            if (wakeLock?.isHeld == true) wakeLock.release()
-        } catch (e: Exception) {
-            log.error("Failed to release wake lock, exception: ${e.message}")
-        }
-
-    }
-
     // ---------------------------------------------------------------------------------------------
     /**
      * Downloading the file.

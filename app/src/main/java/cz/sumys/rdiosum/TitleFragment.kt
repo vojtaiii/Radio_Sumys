@@ -9,17 +9,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.v4.media.session.MediaSessionCompat
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -40,7 +37,6 @@ class TitleFragment : Fragment() {
     private lateinit var handler: Handler
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var mediaSession: MediaSessionCompat
-    private lateinit var wifiLock: WifiManager.WifiLock
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -101,7 +97,7 @@ class TitleFragment : Fragment() {
             if (playButtonState == "stop") {
                 if (!viewModel.playing) {
                     context?.let { initializePlaying(runnableCode, it) }
-                } else binding.playButton.setImageResource(R.drawable.stop_button_white)
+                } else binding.playButton.setImageResource(R.drawable.pst_button)
             } else {
                 handler.removeCallbacksAndMessages(null) // disable periodic checking
                 context?.let { stopPlaying(it) }
@@ -126,11 +122,6 @@ class TitleFragment : Fragment() {
         // setup notifications manager
         notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
         mediaSession = MediaSessionCompat(requireContext(), "sumys_tag")
-
-        // setup wifi lock
-        val wifiManager = requireContext().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "wifilock")
-        wifiLock.setReferenceCounted(false) // wifi locks are not unique
 
         return binding.root
     }
@@ -163,8 +154,6 @@ class TitleFragment : Fragment() {
             log.debug("Internet check: false")
             false
         } else {
-            context?.let { viewModel.reacquireWakeLock(it) } // reacquire wakelock in each call
-            viewModel.acquireWifiLock(wifiLock) // reacquire wifi lock in each call
             context?.let { viewModel.downloadXSPF(it) }
             log.debug("Internet check: true")
             true
@@ -178,12 +167,11 @@ class TitleFragment : Fragment() {
     private fun initializePlaying(runnableCode: Runnable, context: Context) {
         viewModel.playing = true
         val isInternet = internetCheck()
-        viewModel.acquireWifiLock(wifiLock)
         handler.postDelayed(runnableCode, 1000) // start periodic checking of radio status
         if (isInternet) {
             viewModel.initializeStream(context) // start streaming
             // change main button icon
-            binding.playButton.setImageResource(R.drawable.stop_button_white)
+            binding.playButton.setImageResource(R.drawable.pst_button)
         }
     }
 
@@ -194,10 +182,6 @@ class TitleFragment : Fragment() {
         log.debug("stopPlaying() called")
         viewModel.playing = false
         viewModel.stopStreaming(context)
-
-        // release wake locks (important)
-        viewModel.releaseWifiLock(wifiLock)
-        context.let { viewModel.releaseWakeLock(it) }
 
         notificationManager.cancel(1) // hide the notification
         // change main button icon
@@ -291,7 +275,7 @@ class TitleFragment : Fragment() {
         val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
 
         // define the notification looks
-        val notification = context?.let {
+        return context?.let {
             NotificationCompat.Builder(it, CHANNEL_1_ID)
                     .setSmallIcon(R.drawable.ic_sumys_icon)
                     .setLargeIcon(picture)
@@ -309,7 +293,6 @@ class TitleFragment : Fragment() {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .build()
         }
-        return notification
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -24,16 +24,15 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:layout_gravity="start"
+            android:layout_height="80dp"
             android:layout_marginBottom="15dp"
-            android:background="@color/gray"
+            android:background="@color/black"
             app:itemBackground="@color/black"
-            app:itemIconTint="@color/white"
-            app:itemTextColor="@color/white"
+            app:itemIconTint="@color/bottom_nav_icon_color_selector"
+            app:itemTextColor="@color/bottom_nav_icon_color_selector"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:labelVisibilityMode="selected"
-            app:itemIconSize="30dp"
+            app:labelVisibilityMode="unlabeled"
+            app:itemIconSize="80dp"
             app:menu="@menu/bottom_menu"
             />
 
