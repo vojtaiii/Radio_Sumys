@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.google.gms.google-services'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -12,8 +13,8 @@ android {
         applicationId "cz.sumys.rdiosum"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 6
-        versionName "6.0"
+        versionCode 7
+        versionName "7.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -61,21 +62,21 @@ dependencies {
     implementation 'com.android.support:design:27.0.2'
 
     // ExoPlayer - only CORE version
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.13.2'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.13.3'
 
     // logback for logging
-    implementation 'org.slf4j:slf4j-api:1.7.26'
+    implementation 'org.slf4j:slf4j-api:1.7.29'
     implementation 'com.github.tony19:logback-android:2.0.0'
 
     // notification style
-    implementation 'androidx.media:media:1.2.1'
+    implementation 'androidx.media:media:1.3.0'
 
     // ViewModel
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
 
     // Navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:2.3.4"
-    implementation "androidx.navigation:navigation-ui-ktx:2.3.4"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.3.5"
+    implementation "androidx.navigation:navigation-ui-ktx:2.3.5"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // Coroutines
@@ -88,6 +89,14 @@ dependencies {
     // Firebase google services
     implementation platform('com.google.firebase:firebase-bom:26.6.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    implementation 'com.google.firebase:firebase-messaging:21.1.0'
+
+    // Room and Lifecycle dependencies
+    implementation "androidx.room:room-runtime:2.3.0"
+    kapt "androidx.room:room-compiler:2.3.0"
+    implementation "androidx.room:room-ktx:2.3.0"
+
+    // Recycler
+    implementation 'androidx.recyclerview:recyclerview:1.2.0'
 
 }

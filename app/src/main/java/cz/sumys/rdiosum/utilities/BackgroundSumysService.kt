@@ -1,18 +1,25 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.utilities
 
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.exoplayer2.*
+import cz.sumys.rdiosum.R
+import cz.sumys.rdiosum.activities.MainActivity
+import cz.sumys.rdiosum.applications.SumysApplication
+import cz.sumys.rdiosum.viewmodels.TitleViewModel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -23,10 +30,14 @@ class BackgroundSumysService: Service() {
 
     private lateinit var mHandlerThread: HandlerThread
     private lateinit var mHandler: Handler
+    private lateinit var notificationManager: NotificationManagerCompat
 
     override fun onCreate() {
         log.debug("BackgroundSumysService created")
         startForeground(1, createSongNotification(applicationContext, "Rádio Sumýš", "Blbě čumíš"))
+
+        // setup notifications manager
+        notificationManager = applicationContext?.let { NotificationManagerCompat.from(it) }!!
 
         //creates a thread
         mHandlerThread = HandlerThread("sumys.playbackThread")
@@ -49,27 +60,45 @@ class BackgroundSumysService: Service() {
      * Start the audio stream ON SEPARATE thread using HandlerThread
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         mHandler.post {
-            try {
-                log.debug("Stream initialized")
-                // exo player plays the media item object
-                val sumysItem = MediaItem.fromUri(TitleViewModel.STREAM_URL)
-                // set the media item to be played
-                player.setMediaItem(sumysItem);
-                // Prepare the player.
-                player.prepare()
-                // Start the playback.
-                player.play()
-                fireSpinningIntent()
-            } catch (e: Exception) {
-                log.error("Failed to start stream, ${e.message}")
-                this.stopSelf()
+
+            if (SERVICE_RUNNING) {
+                log.debug("Update notification info about song")
+                val band = intent?.getStringExtra("band")
+                val song = intent?.getStringExtra("song")
+                val notification = createSongNotification(applicationContext,
+                        "Rádio Sumýš", "$band - $song")
+
+                if (notification != null) {
+                    log.debug("Notification updated, band=$band, song=$song")
+                    notificationManager.notify(1, notification)
+                }
+            } else {
+                try {
+                    SERVICE_RUNNING = true
+
+                    log.debug("Stream initialized")
+                    // exo player plays the media item object
+                    val sumysItem = MediaItem.fromUri(TitleViewModel.STREAM_URL)
+                    // set the media item to be played
+                    player.setMediaItem(sumysItem);
+                    // Prepare the player.
+                    player.prepare()
+                    // Start the playback.
+                    player.play()
+                    fireSpinningIntent()
+                } catch (e: Exception) {
+                    log.error("Failed to start stream, ${e.message}")
+                    this.stopSelf()
+                }
             }
         }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onDestroy() {
+        SERVICE_RUNNING = false
         mHandler.post {
             try {
                 player.pause()
@@ -86,6 +115,8 @@ class BackgroundSumysService: Service() {
         val intent = Intent("spinning")
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
     }
+
+    // ---------------------------------------------------------------------------------------------
 
     private fun createSongNotification(context: Context, title: String, message: String): Notification? {
         // content intent when user presses the notification body
@@ -135,4 +166,9 @@ class BackgroundSumysService: Service() {
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
+
+    companion object {
+        var SERVICE_RUNNING: Boolean = false
+    }
+
 }

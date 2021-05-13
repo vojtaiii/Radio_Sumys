@@ -1,4 +1,4 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.fragments
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -20,10 +20,16 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
-import cz.sumys.rdiosum.SumysApplication.Companion.CHANNEL_1_ID
+import cz.sumys.rdiosum.utilities.ActionReceiver
+import cz.sumys.rdiosum.R
+import cz.sumys.rdiosum.applications.SumysApplication.Companion.CHANNEL_1_ID
+import cz.sumys.rdiosum.viewmodels.TitleViewModel
+import cz.sumys.rdiosum.utilities.Utils
+import cz.sumys.rdiosum.activities.MainActivity
 import cz.sumys.rdiosum.databinding.FragmentTitleBinding
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -52,7 +58,7 @@ class TitleFragment : Fragment() {
         setHasOptionsMenu(true)
 
         // initialize the view model
-        viewModel = ViewModelProvider(this).get(TitleViewModel::class.java)
+        viewModel = activity?.let { ViewModelProvider(it).get(TitleViewModel::class.java) }!!
 
         // -----------------------------------------------------------------------------------------
         // Handler setup for periodic tasks
@@ -61,6 +67,7 @@ class TitleFragment : Fragment() {
             override fun run() {
                 log.debug("Handler run")
                 internetCheck()
+                context?.let { viewModel.sendDataToSumysService(it) }
                 handler.postDelayed(this, INFO_PERIOD)
             }
         }
@@ -123,6 +130,9 @@ class TitleFragment : Fragment() {
         notificationManager = context?.let { NotificationManagerCompat.from(it) }!!
         mediaSession = MediaSessionCompat(requireContext(), "sumys_tag")
 
+        // register receivers
+        registerReceivers(requireContext())
+
         return binding.root
     }
 
@@ -161,6 +171,17 @@ class TitleFragment : Fragment() {
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Check if the background streaming service has not been killed in the meantime
+     */
+    override fun onResume() {
+        super.onResume()
+
+        // check if background service has not been killed
+        if (!viewModel.sumysServiceRunning()) viewModel.setToPlay()
+    }
+
     /**
      * Play button was pressed and radio should start playing
      */
@@ -197,10 +218,8 @@ class TitleFragment : Fragment() {
      */
     @SuppressLint("SetTextI18n")
     private fun parseInfo() {
-        val info = context?.let { viewModel.parseXSPF(it) }
-        binding.song.text = "${info?.get(0)} - ${info?.get(1)}"
-        binding.currentListeners.text = "Rádio právě poslouchá ${info?.get(2)} lidí"
-        info?.get(0)?.let { sendOnSongChannel(it, info[1]) } // send info to notification
+        binding.song.text = "${viewModel.band} - ${viewModel.song}"
+        binding.currentListeners.text = "Rádio právě poslouchá ${viewModel.currentListeners} lidí"
     }
 
 
@@ -238,65 +257,6 @@ class TitleFragment : Fragment() {
 
     // ---------------------------------------------------------------------------------------------
     /**
-     * Send notification
-     */
-    private fun sendOnSongChannel(author: String, song: String) {
-        val title = "Rádio Sumýš"
-        val message = "$author - $song"
-        val notification = createSongNotification(title, message)
-
-
-        if (notification != null) {
-            notificationManager.notify(1, notification)
-        }
-    }
-
-    private fun createSongNotification(title: String, message: String): Notification? {
-        // content intent when user presses the notification body
-        val activityIntent = Intent(context, MainActivity::class.java)
-        activityIntent.action = Intent.ACTION_MAIN
-        activityIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val contentIntent = PendingIntent.getActivity(context, 0, activityIntent, 0)
-
-        // action intent for stop button
-        val actionStopIntent = Intent(context, ActionReceiver::class.java)
-        actionStopIntent.putExtra("action", "stop")
-        val pActionStopIntent = PendingIntent.getBroadcast(context,
-                1, actionStopIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        // action intent for notification dismiss
-        val actionDeleteIntent = Intent(context, ActionReceiver::class.java)
-        actionDeleteIntent.putExtra("action", "delete")
-        val pActionDeleteIntent = PendingIntent.getBroadcast(context,
-                1, actionDeleteIntent, 0)
-
-        // picture and its bitmap
-        val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
-
-        // define the notification looks
-        return context?.let {
-            NotificationCompat.Builder(it, CHANNEL_1_ID)
-                    .setSmallIcon(R.drawable.ic_sumys_icon)
-                    .setLargeIcon(picture)
-                    .setContentTitle(title)
-                    .setContentText(message)
-                    .setStyle(
-                            androidx.media.app.NotificationCompat.MediaStyle()
-                                    .setMediaSession(mediaSession.sessionToken)
-                    )
-                    .setContentIntent(contentIntent)
-                    .addAction(R.drawable.ic_notif_stop, "stop", pActionStopIntent)
-                    .setDeleteIntent(pActionDeleteIntent)
-                    .setAutoCancel(true)
-                    .setOnlyAlertOnce(true)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .build()
-        }
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    /**
      * Creates an intent with bandzone web page
      */
     private fun bandzoneIntent() {
@@ -314,11 +274,13 @@ class TitleFragment : Fragment() {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Broadcast receiver when the notification is dismissed
+     * Broadcast receiver for killing the stream
      */
-    private val broadcastStopReceiver = object : BroadcastReceiver() {
+    private val streamKilledReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            viewModel.playButtonPressed(true)
+            log.debug("streamKilledReceiver reached")
+            handler.removeCallbacksAndMessages(null)
+            viewModel.setToPlay()
         }
     }
 
@@ -331,12 +293,13 @@ class TitleFragment : Fragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
+    private fun registerReceivers(context: Context) {
+        log.debug("Receivers registered")
         // register broadcast receivers
-        context.registerReceiver(broadcastStopReceiver, IntentFilter("NOTIFICATION_DISMISSED"))
+        LocalBroadcastManager.getInstance(context).registerReceiver(
+                streamKilledReceiver, IntentFilter("NOTIFICATION_DISMISSED"))
         LocalBroadcastManager.getInstance(context).registerReceiver(
                 broadcastSpinningReceiver, IntentFilter("spinning"))
-        super.onAttach(context)
     }
 
     // ---------------------------------------------------------------------------------------------

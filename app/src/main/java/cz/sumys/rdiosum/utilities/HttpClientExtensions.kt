@@ -1,5 +1,6 @@
 package cz.sumys.rdiosum
 
+import cz.sumys.rdiosum.utilities.DownloadResult
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

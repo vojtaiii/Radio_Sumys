@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/titleFragment"
         android:icon="@drawable/ic_radio"
-        android:title="Rádio"/>
+        android:title="Rádio"
+        tools:ignore="HardcodedText" />
 
     <item
-        android:id="@+id/bottom_chat"
+        android:id="@+id/chatFragment"
         android:icon="@drawable/ic_kecbox"
-        android:title="Chat"/>
+        android:title="Chat"
+        tools:ignore="HardcodedText" />
 
     <item
-        android:id="@+id/bottom_archive"
+        android:id="@+id/archivFragment"
         android:icon="@drawable/ic_archiv"
-        android:title="Archiv"/>
+        android:title="Archiv"
+        tools:ignore="HardcodedText" />
 
 </menu>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sumys.android.navigation.AboutFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/chatConstraint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="16dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toTopOf="@id/chatIndicator"
+            app:layout_constraintTop_toTopOf="parent" >
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <ProgressBar
+            android:id="@+id/spinner"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:indeterminate="true"
+            android:indeterminateTint="#FFFFFF"
+            android:progressTint="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/sendLayout"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/chatIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/view"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#e0e0e0"
+            app:layout_constraintBottom_toTopOf="@id/sendLayout" />
+
+        <RelativeLayout
+            android:id="@+id/sendLayout"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <EditText
+                android:layout_margin="16dp"
+                android:id="@+id/sendNickname"
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:background="@color/white"
+                android:hint="Přezdívka"
+                android:inputType="text"
+                android:maxLines="6"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray"
+                tools:ignore="Autofill,HardcodedText" />
+
+
+            <EditText
+                android:id="@+id/sendText"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sendNickname"
+                android:layout_toStartOf="@+id/sendButton"
+                android:background="@color/white"
+                android:hint="Sděl důležitou informaci"
+                android:inputType="text"
+                android:textSize="16sp"
+                android:maxLines="6"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray"
+                tools:ignore="Autofill,HardcodedText" />
+
+            <Button
+                android:id="@+id/sendButton"
+                android:layout_width="75dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="12dp"
+                android:layout_alignParentEnd="true"
+                android:adjustViewBounds="true"
+                android:layout_alignParentBottom="true"
+                android:text="Mluv"
+                android:backgroundTint="@color/sumys_yellow"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

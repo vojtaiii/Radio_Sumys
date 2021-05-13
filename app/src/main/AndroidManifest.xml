@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
-        android:name=".SumysApplication"
+        android:name=".applications.SumysApplication"
         android:allowBackup="true"
         android:icon="@mipmap/sumys_ic_launcher"
         android:label="@string/app_name"
@@ -21,7 +21,7 @@
         tools:ignore="AllowBackup">
 
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,13 +29,13 @@
         </activity>
 
 
-        <service android:name=".MyFirebaseMessagingService">
+        <service android:name=".utilities.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name=".BackgroundSumysService"
+        <service android:name=".utilities.BackgroundSumysService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true">
 
@@ -44,7 +44,7 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".ActionReceiver" />
+        <receiver android:name=".utilities.ActionReceiver" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

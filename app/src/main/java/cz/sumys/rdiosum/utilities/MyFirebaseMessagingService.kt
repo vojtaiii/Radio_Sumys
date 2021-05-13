@@ -1,20 +1,17 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.utilities
 
-import android.R
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.media.RingtoneManager
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import cz.sumys.rdiosum.R
+import cz.sumys.rdiosum.activities.MainActivity
 
 
 class MyFirebaseMessagingService: FirebaseMessagingService() {
@@ -30,7 +27,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         val mediaSession = MediaSessionCompat(applicationContext, "sumys_tag")
 
         // picture and its bitmap
-        val picture = BitmapFactory.decodeResource(resources, cz.sumys.rdiosum.R.drawable.sumys_notification)
+        val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
 
         // content intent when user presses the notification body
         val activityIntent = Intent(applicationContext, MainActivity::class.java)
@@ -40,7 +37,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         val contentIntent = PendingIntent.getActivity(applicationContext, 0, activityIntent, 0)
 
         val notification = Builder(this, "sumys_info")
-            .setSmallIcon(cz.sumys.rdiosum.R.drawable.ic_sumys_icon)
+            .setSmallIcon(R.drawable.ic_sumys_icon)
             .setLargeIcon(picture)
             .setContentTitle(message.notification?.title)
             .setContentText(message.notification?.body)

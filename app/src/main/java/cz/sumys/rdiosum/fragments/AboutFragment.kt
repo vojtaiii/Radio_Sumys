@@ -1,4 +1,4 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.fragments
 
 import android.content.Intent
 import android.media.SoundPool
@@ -10,7 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
+import cz.sumys.rdiosum.R
 import cz.sumys.rdiosum.databinding.FragmentAboutBinding
 
 

@@ -1,4 +1,4 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.fragments
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.databinding.DataBindingUtil
+import cz.sumys.rdiosum.R
 import cz.sumys.rdiosum.databinding.FragmentNewsBinding
 
 class NewsFragment : Fragment() {

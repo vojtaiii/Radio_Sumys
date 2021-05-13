@@ -1,4 +1,4 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.utilities
 
 import android.content.Context
 import android.net.ConnectivityManager

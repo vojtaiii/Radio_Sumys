@@ -70,6 +70,19 @@
                 android:contentDescription="@string/instagram_cnt" />
 
             <TextView
+                android:id="@+id/email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cousine_bold"
+                android:gravity="center"
+                android:text="@string/sumys_email"
+                android:textColor="@color/white"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fb" />
+
+            <TextView
                 android:id="@+id/mara_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -77,11 +90,10 @@
                 android:gravity="center"
                 android:text="@string/mara"
                 android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fb"
-                app:layout_constraintVertical_bias="0.05" />
+                app:layout_constraintTop_toBottomOf="@id/email" />
 
             <TextView
                 android:id="@+id/mara_2"
@@ -97,20 +109,6 @@
                 app:layout_constraintTop_toBottomOf="@id/mara_1"/>
 
             <TextView
-                android:id="@+id/mara_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/cousine_italic"
-                android:gravity="center"
-                android:text="@string/mara_3"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:paddingTop="5dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/mara_2"/>
-
-            <TextView
                 android:id="@+id/martus_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -118,10 +116,10 @@
                 android:gravity="center"
                 android:text="@string/martus_1"
                 android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/mara_3"
+                app:layout_constraintTop_toBottomOf="@id/mara_2"
                 app:layout_constraintVertical_bias="0.100000024" />
 
             <TextView
@@ -138,20 +136,6 @@
                 app:layout_constraintTop_toBottomOf="@id/martus_1"/>
 
             <TextView
-                android:id="@+id/martus_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/cousine_italic"
-                android:gravity="center"
-                android:text="@string/martus_3"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:paddingTop="5dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/martus_2"/>
-
-            <TextView
                 android:id="@+id/vojta_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -159,10 +143,10 @@
                 android:gravity="center"
                 android:text="@string/vojta_1"
                 android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/martus_3"
+                app:layout_constraintTop_toBottomOf="@id/martus_2"
                 app:layout_constraintVertical_bias="0.100000024" />
 
             <TextView
@@ -178,18 +162,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/vojta_1"/>
 
-            <TextView
-                android:id="@+id/vojta_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/cousine_italic"
-                android:gravity="center"
-                android:text="@string/vojta_3"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/vojta_2"/>
 
             <TextView
                 android:id="@+id/miky_1"
@@ -199,10 +171,10 @@
                 android:gravity="center"
                 android:text="@string/miky_1"
                 android:textColor="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/vojta_3"
+                app:layout_constraintTop_toBottomOf="@id/vojta_2"
                 app:layout_constraintVertical_bias="0.11" />
 
             <TextView
@@ -218,15 +190,72 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/miky_1"/>
 
+            <TextView
+                android:id="@+id/dan_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cousine_bold"
+                android:gravity="center"
+                android:text="@string/dan_1"
+                android:textColor="@color/white"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/miky_2"
+                app:layout_constraintVertical_bias="0.11" />
+
+            <TextView
+                android:id="@+id/dan_2"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cousine_regular"
+                android:gravity="center"
+                android:text="@string/dan_2"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dan_1"/>
+
+            <TextView
+                android:id="@+id/mytus_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cousine_bold"
+                android:gravity="center"
+                android:text="@string/mytus_1"
+                android:textColor="@color/white"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dan_2"
+                app:layout_constraintVertical_bias="0.11" />
+
+            <TextView
+                android:id="@+id/mytus_2"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cousine_regular"
+                android:gravity="center"
+                android:text="@string/mytus_2"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mytus_1"/>
+
             <ImageView
                 android:id="@+id/beer"
                 android:layout_width="250dp"
                 android:layout_height="100dp"
                 android:src="@drawable/beer"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/miky_2"
+                app:layout_constraintTop_toBottomOf="@id/mytus_2"
                 android:contentDescription="@string/pivo_cnt" />
+
+
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

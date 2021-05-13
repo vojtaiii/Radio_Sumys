@@ -1,15 +1,10 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.applications
 
 import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-import androidx.core.app.NotificationCompat
-import io.ktor.http.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.io.File
 
 class SumysApplication: Application() {
     //private lateinit var log: Logger

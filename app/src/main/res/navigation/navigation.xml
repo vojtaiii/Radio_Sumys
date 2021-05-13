@@ -7,14 +7,18 @@
 
     <fragment
         android:id="@+id/titleFragment"
-        android:name="cz.sumys.rdiosum.TitleFragment"
+        android:name="cz.sumys.rdiosum.fragments.TitleFragment"
         tools:layout="@layout/fragment_title" />
     <fragment
         android:id="@+id/aboutFragment"
-        android:name="cz.sumys.rdiosum.AboutFragment"
+        android:name="cz.sumys.rdiosum.fragments.AboutFragment"
         tools:layout="@layout/fragment_about"/>
     <fragment
-        android:id="@+id/newsFragment"
-        android:name="cz.sumys.rdiosum.NewsFragment"
-        tools:layout="@layout/fragment_news" />
+        android:id="@+id/chatFragment"
+        android:name="cz.sumys.rdiosum.fragments.ChatFragment"
+        tools:layout="@layout/fragment_chat"/>
+    <fragment
+        android:id="@+id/archivFragment"
+        android:name="cz.sumys.rdiosum.fragments.ArchivFragment"
+        tools:layout="@layout/fragment_archiv" />
 </navigation>

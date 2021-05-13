@@ -1,12 +1,11 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.utilities
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import androidx.core.content.ContextCompat.startActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import cz.sumys.rdiosum.activities.MainActivity
+import cz.sumys.rdiosum.fragments.TitleFragment
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -27,16 +26,19 @@ class ActionReceiver: BroadcastReceiver() {
 
 
     /**
-     * The action was "delete" or "stop,
+     * The action was "delete" or "stop
+     * Send broadcast to app that stop on notification was pressed
+     * SumysBackgroundService should be listening
      */
     private fun deleteAction(context: Context?) {
-        val activityIntent = Intent(context, MainActivity::class.java)
-        activityIntent.action = Intent.ACTION_MAIN
-        activityIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context?.startActivity(activityIntent)
+        // this stop the streaming service
+        val sumysIntent = Intent(context, BackgroundSumysService::class.java)
+        context?.stopService(sumysIntent)
 
-        context?.sendBroadcast(Intent("NOTIFICATION_DISMISSED"))
+        // this notify the title view model
+        if (context != null) {
+            LocalBroadcastManager.getInstance(context).sendBroadcast(Intent("NOTIFICATION_DISMISSED"))
+        }
 
     }
 }

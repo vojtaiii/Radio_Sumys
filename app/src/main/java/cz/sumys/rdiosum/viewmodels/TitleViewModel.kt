@@ -1,28 +1,29 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.viewmodels
 
-import android.annotation.SuppressLint
-import android.app.Notification
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
-import android.net.wifi.WifiManager
 import android.os.Environment
-import android.os.PowerManager
-import androidx.core.app.JobIntentService
-import androidx.core.app.JobIntentService.enqueueWork
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import cz.sumys.rdiosum.BuildConfig
+import cz.sumys.rdiosum.activities.MainActivity
+import cz.sumys.rdiosum.downloadFile
+import cz.sumys.rdiosum.utilities.BackgroundSumysService
+import cz.sumys.rdiosum.utilities.DownloadResult
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.util.stream.Stream
-import cz.sumys.rdiosum.BackgroundSumysService
 
 
 class TitleViewModel: ViewModel() {
@@ -49,19 +50,64 @@ class TitleViewModel: ViewModel() {
     get() = _downloaded
 
     var bandzoneAuthor = "Blbě čumíš"
+    var band = "Rádio Sumýš"
+    var song = "blbě čumíš"
+    var currentListeners = "xxx"
     var playing = false
 
     // ---------------------------------------------------------------------------------------------
 
+    fun setToPlay() {
+        _playButtonState.value = "play"
+    }
+
     fun playButtonPressed(isInternet: Boolean) {
-        if (_playButtonState.value == "stop" && isInternet) {
+        if (_playButtonState.value == "stop") {
             _playButtonState.value = "play"
-        } else _playButtonState.value = "stop"
+        } else if (isInternet) _playButtonState.value = "stop"
     }
 
     fun spinningDone() {
         _spinning.value = false
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        log.debug("TitleViewModel cleared")
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Asks [BackgroundSumysService] if it is running and return the situation
+     */
+    fun sumysServiceRunning(): Boolean {
+        log.debug("SERVICE_RUNNING = ${BackgroundSumysService.SERVICE_RUNNING}")
+        return try {
+            BackgroundSumysService.SERVICE_RUNNING
+        } catch (e: Exception) {
+            log.debug("Failed to contact BackgroundSumysService if its running")
+            false
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Periodically send data (band, song) to sumys service
+     */
+    fun sendDataToSumysService(context: Context) {
+        if (playing) {
+            val sumysIntent = Intent(context, BackgroundSumysService::class.java)
+            sumysIntent.putExtra("band", band)
+            sumysIntent.putExtra("song", song)
+            // start the service (the execution depends on API version)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                context.startForegroundService(sumysIntent)
+            } else context.startService(sumysIntent)
+        }
+    }
+
 
     /**
      * Start streaming
@@ -102,6 +148,8 @@ class TitleViewModel: ViewModel() {
      * Open the output stream to the URI given and dispatches the download file coroutine.
      */
     fun downloadXSPF(context: Context) {
+        log.debug("Downloading XSPF file...")
+
         val url = INFO_URL
         val folder = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         val fileName = "sumys_info.xspf"
@@ -118,6 +166,7 @@ class TitleViewModel: ViewModel() {
                     withContext(Dispatchers.Main) {
                         when (it) {
                             is DownloadResult.Success -> {
+                                parseXSPF(context)
                                 _downloaded.value = true
                             }
 
@@ -138,7 +187,7 @@ class TitleViewModel: ViewModel() {
      *  [1] - song title
      *  [2] - number of current listeners
      */
-    fun parseXSPF(context: Context): List<String> {
+    private fun parseXSPF(context: Context): List<String> {
         val folder = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         val fileName = "sumys_info.xspf"
         val file = File(folder, fileName)
@@ -164,21 +213,22 @@ class TitleViewModel: ViewModel() {
             return mutableListOf("Rádio Sumýš", "Blbě čumíš", "xxx")
         }
 
-        val author: String
-        val songTitle: String
-        val currListeners: String
-
-        author = if (authorLine.contains("<creator>")) {
+        val author: String = if (authorLine.contains("<creator>")) {
             authorLine.substringAfter("<creator>").substringBefore("</creator>")
         } else "Rádio Sumýš"
-        songTitle = if (songTitleLine.contains("<title>")) {
+        val songTitle: String = if (songTitleLine.contains("<title>")) {
             songTitleLine.substringAfter("<title>").substringBefore("</title>")
         } else "Blbě čumíš"
-        currListeners = if (currListenersLine.contains("Current")) {
+        val currListeners: String = if (currListenersLine.contains("Current")) {
             currListenersLine.substringAfter("Current Listeners: ")
         } else "xxx"
 
+        log.debug("XSPF parsed, band = $author, author = $song")
+
         bandzoneAuthor = author
+        band = author
+        song = songTitle
+        currentListeners = currListeners
 
         return mutableListOf(author, songTitle, currListeners)
     }

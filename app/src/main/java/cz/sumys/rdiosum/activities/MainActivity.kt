@@ -1,10 +1,7 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.activities
 
 import android.Manifest
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Window
@@ -14,10 +11,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import cz.sumys.rdiosum.R
 import cz.sumys.rdiosum.databinding.ActivityMainBinding
+import cz.sumys.rdiosum.utilities.BackgroundSumysService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -85,6 +85,13 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onDestroy() {
         notificationManager.cancel(1)
+        // stop the streaming service if god forbid still playing
+        // this stop the streaming service
+        val sumysIntent = Intent(applicationContext, BackgroundSumysService::class.java)
+        applicationContext?.stopService(sumysIntent)
+        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(Intent("NOTIFICATION_DISMISSED"))
+
+        log.debug("Activity destroyed")
         super.onDestroy()
     }
 }

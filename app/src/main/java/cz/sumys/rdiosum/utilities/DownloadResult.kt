@@ -1,4 +1,4 @@
-package cz.sumys.rdiosum
+package cz.sumys.rdiosum.utilities
 
 /**
  * Class that reports on the status of the download.
