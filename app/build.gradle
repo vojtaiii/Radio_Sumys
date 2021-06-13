@@ -59,7 +59,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // design for bottom navigation view
-    implementation 'com.android.support:design:27.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
 
     // ExoPlayer - only CORE version
     implementation 'com.google.android.exoplayer:exoplayer-core:2.13.3'
@@ -98,5 +98,11 @@ dependencies {
 
     // Recycler
     implementation 'androidx.recyclerview:recyclerview:1.2.0'
+
+    // ABP for backward date-time formats compatibility
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
+
+    // Picasso for images download from URL resource
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
 }

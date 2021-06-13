@@ -1,3 +1,4 @@
+
 package cz.sumys.rdiosum.viewmodels
 
 import android.app.Application
@@ -52,17 +53,17 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
     /**
      * Invoke the hear() suspend function and wait for its result, store response
      */
-     fun hearChat(prev: Boolean) {
-         viewModelScope.launch(Dispatchers.IO) {
-             _spinning.postValue(true)
+    fun hearChat(prev: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _spinning.postValue(true)
 
-             val response = hear(prev) // the server side
-             parseAndStoreResponse(response.toString()) // what happens here
-             if (!prev) _finishedResponse.postValue(true)
+            val response = hear(prev) // the server side
+            parseAndStoreResponse(response.toString()) // what happens here
+            if (!prev) _finishedResponse.postValue(true)
 
-             _spinning.postValue(false)
-         }
-     }
+            _spinning.postValue(false)
+        }
+    }
 
     /**
      * Invoke the mluv() function and write new message to database
@@ -270,7 +271,7 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
 
 
     private companion object {
-        private val MAX_NICK_LENGTH: Int = 12
+        private const val MAX_NICK_LENGTH: Int = 12
         private val LIVECHAT_SLYS_URL: URL = URL("https://devel.radio.sumys.cz/scripts/livechat-slys.py")
         private val LIVECHAT_PREV_URL: URL = URL("https://devel.radio.sumys.cz/scripts/livechat-prev.py")
         private val LIVECHAT_MLUV_URL: URL = URL("https://devel.radio.sumys.cz/scripts/livechat-mluv.py")

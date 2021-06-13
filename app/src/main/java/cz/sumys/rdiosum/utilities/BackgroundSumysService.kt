@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
+import android.os.PowerManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -28,6 +29,7 @@ class BackgroundSumysService: Service() {
     val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
     private lateinit var player: SimpleExoPlayer
 
+    private lateinit var wakeLock: PowerManager.WakeLock
     private lateinit var mHandlerThread: HandlerThread
     private lateinit var mHandler: Handler
     private lateinit var notificationManager: NotificationManagerCompat
@@ -38,6 +40,14 @@ class BackgroundSumysService: Service() {
 
         // setup notifications manager
         notificationManager = applicationContext?.let { NotificationManagerCompat.from(it) }!!
+
+        // we need this lock so our service gets not affected by Doze Mode
+        wakeLock =
+                (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                    newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "EndlessService::lock").apply {
+                        acquire(20*60*1000L /*20 minutes*/)
+                    }
+                }
 
         //creates a thread
         mHandlerThread = HandlerThread("sumys.playbackThread")
@@ -99,6 +109,12 @@ class BackgroundSumysService: Service() {
 
     override fun onDestroy() {
         SERVICE_RUNNING = false
+
+        // release wake lock
+        wakeLock.let {
+            if (it.isHeld) it.release()
+        }
+
         mHandler.post {
             try {
                 player.pause()

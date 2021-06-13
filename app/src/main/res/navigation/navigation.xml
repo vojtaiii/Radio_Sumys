@@ -21,4 +21,8 @@
         android:id="@+id/archivFragment"
         android:name="cz.sumys.rdiosum.fragments.ArchivFragment"
         tools:layout="@layout/fragment_archiv" />
+    <fragment
+        android:id="@+id/newsFragment"
+        android:name="cz.sumys.rdiosum.fragments.NewsFragment"
+        tools:layout="@layout/fragment_news" />
 </navigation>

@@ -5,6 +5,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import com.jakewharton.threetenabp.AndroidThreeTen
 
 class SumysApplication: Application() {
     //private lateinit var log: Logger
@@ -17,6 +18,7 @@ class SumysApplication: Application() {
         super.onCreate()
 
         //createLogFolder()
+        AndroidThreeTen.init(this)
         createNotificationChannels()
         //log.debug("Sumys application started")
     }

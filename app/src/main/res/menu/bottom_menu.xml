@@ -9,6 +9,12 @@
         tools:ignore="HardcodedText" />
 
     <item
+        android:id="@+id/newsFragment"
+        android:icon="@drawable/ic_novinky"
+        android:title="Novinky"
+        tools:ignore="HardcodedText" />
+
+    <item
         android:id="@+id/chatFragment"
         android:icon="@drawable/ic_kecbox"
         android:title="Chat"
