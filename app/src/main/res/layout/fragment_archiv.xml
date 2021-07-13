@@ -69,7 +69,7 @@
                 android:spinnerMode="dropdown"
                 android:autofillHints="Vyber"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/white"
                 android:entries="@array/fragmentSeries"/>
 
         </RelativeLayout>

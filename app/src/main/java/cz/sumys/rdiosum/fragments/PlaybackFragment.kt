@@ -8,17 +8,14 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import cz.sumys.rdiosum.R
 import cz.sumys.rdiosum.databinding.FragmentPlaybackBinding
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
 
 class PlaybackFragment: DialogFragment() {
     val log: Logger = LoggerFactory.getLogger(PlaybackFragment::class.java)
@@ -29,10 +26,15 @@ class PlaybackFragment: DialogFragment() {
                               savedInstanceState: Bundle?): View? {
 
         binding = DataBindingUtil.inflate<FragmentPlaybackBinding>(inflater,
-            R.layout.fragment_playback, container, false)
+                R.layout.fragment_playback, container, false)
 
         // the player view instance
         val playbackView : StyledPlayerView = binding.playbackView
+
+        // player settings, buffer sizes
+        val loadControl = DefaultLoadControl.Builder()
+                .setBufferDurationsMs(2000, 5000, 1500, 2000)
+                .build()
 
         // player attributes
         val audioAttributes = AudioAttributes.Builder()
@@ -41,7 +43,9 @@ class PlaybackFragment: DialogFragment() {
                 .build()
 
         // the player instance
-        playbackPlayer = SimpleExoPlayer.Builder(requireContext()).build().apply {
+        playbackPlayer = SimpleExoPlayer.Builder(requireContext())
+                .setLoadControl(loadControl)
+                .build().apply {
             setAudioAttributes(audioAttributes, true)
         }
         playbackView.player = playbackPlayer
