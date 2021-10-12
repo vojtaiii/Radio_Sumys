@@ -184,7 +184,7 @@ class NewsViewModel(val database: NewsDatabaseDao, application: Application)
     //----------------------------------------------------------------------------------------------
 
     companion object {
-        private const val ACCESS_TOKEN = "EAAHPebhRLq0BAHYsI6vr1GFNrnL43VQl6w30yvMmNEfu2xf3ofRvvASzO6iPZCZC4qfU83MNtBJHS0wOCTD4NePZCOBZAjoOnpGYD71EZAqB24NZAOdZBEVYCllsA2btdFrpW7rP1XK4UonVRoEY9Ts9LEXYKlMkfrV8JY8Gs2lPg2XbksFyxMg"
+        private const val ACCESS_TOKEN = "EAAHPebhRLq0BAHsoZB4tUNiLR3dS2dqvBnYKWqsr6Oj2u28RjbPvlgGQODc0VXwkMmwdedgKjO892UaLPyFZAqObq7jYIZCv5HllRZBaVMt2wJ0abWuguALlYl6cgrZBflF4POW7iIpLWP2RkLFXBQIG0ZAo0z8ZArZCn8J6fZCUOnJ9co5OtJqDm"
         private const val URL_GRAPH_PAGE_FEED = "https://graph.facebook.com/102046414836971/feed?fields=created_time,message,full_picture,access_token&access_token=$ACCESS_TOKEN"
     }
     }

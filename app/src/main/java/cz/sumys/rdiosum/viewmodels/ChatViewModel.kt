@@ -96,7 +96,7 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
     //----------------------------------------------------------------------------------------------
 
     private suspend fun mluv(nick: String, msg: String, date:String) = withContext(Dispatchers.IO) {
-        val connection = LIVECHAT_MLUV_URL.openConnection() as HttpURLConnection
+        val connection = LIVECHAT_WRITE_URL.openConnection() as HttpURLConnection
 
         // set the request method to POST
         connection.requestMethod = "POST"
@@ -111,7 +111,8 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
         connection.doOutput = true
 
         // INPUT
-        val jsonInputString = """{"nick": "$nick", "msg": "$msg", "date": "$date"}"""
+        val timestamp = date.toLong() / 1000 // timestamp is in seconds
+        val jsonInputString = """{"nick": "$nick", "msg": "$msg", "timestamp": "$timestamp"}"""
 
         // write the string to connection output stream
         connection.outputStream.use { os ->
@@ -154,7 +155,7 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
             messageId = date.toLong()
             messageText = msg
             messageSender = nick
-            messageTimestamp = date.toLong()
+            messageTimestamp = date.toLong()/1000
         }
 
         // insert new recording to database by coroutine
@@ -191,7 +192,7 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
                 val oneObject = msgsArray.getJSONObject(i)
                 msg.add(oneObject.getString("msg"))
                 nick.add(oneObject.getString("nick"))
-                date.add(oneObject.getString("date"))
+                date.add(oneObject.getString("timestamp"))
             } catch (e: Exception) {
                 log.error("Error parsing JSON file, ${e.printStackTrace()}")
             }
@@ -226,11 +227,7 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
      */
     private suspend fun hear(prev: Boolean) = withContext(Dispatchers.IO) {
         // open a connection to the web script URL
-        val connection: HttpURLConnection = if (prev) {
-            LIVECHAT_PREV_URL.openConnection() as HttpURLConnection
-        } else {
-            LIVECHAT_SLYS_URL.openConnection() as HttpURLConnection
-        }
+        val connection: HttpURLConnection = LIVECHAT_READ_URL.openConnection() as HttpURLConnection
 
         // set the request method to POST
         connection.requestMethod = "POST"
@@ -244,8 +241,12 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
         // otherwise, we won't be able to write content to the connection output stream
         connection.doOutput = true
 
-        // here, pass either empty string for default response or lastMsgId (!)
-        val jsonInputString = firstMsgId
+        // here, pass the JSON input entry
+        val firstMsg = if (firstMsgId == "") { "" } else {
+            (firstMsgId.toInt() - (MESSAGES_LIMIT + 1)).toString()
+        }
+        val jsonInputString = """{"id": "$firstMsg", "limit": "$MESSAGES_LIMIT"}"""
+        log.debug("post string: $jsonInputString")
 
         // write the string to connection output stream
         // this HAVE to be done in a coroutine
@@ -272,8 +273,8 @@ class ChatViewModel(val database: SumysDatabaseDao, application: Application)
 
     private companion object {
         private const val MAX_NICK_LENGTH: Int = 12
-        private val LIVECHAT_SLYS_URL: URL = URL("https://devel.radio.sumys.cz/scripts/livechat-slys.py")
-        private val LIVECHAT_PREV_URL: URL = URL("https://devel.radio.sumys.cz/scripts/livechat-prev.py")
-        private val LIVECHAT_MLUV_URL: URL = URL("https://devel.radio.sumys.cz/scripts/livechat-mluv.py")
+        private const val MESSAGES_LIMIT = 10 // number of messages to display per one refresh
+        private val LIVECHAT_READ_URL = URL("https://api.radio.sumys.cz/chat/read.php?prev=DESC")
+        private val LIVECHAT_WRITE_URL = URL("https://api.radio.sumys.cz/chat/write.php")
     }
 }

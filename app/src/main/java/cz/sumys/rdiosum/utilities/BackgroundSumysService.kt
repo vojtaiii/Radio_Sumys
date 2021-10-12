@@ -56,13 +56,6 @@ class BackgroundSumysService: Service() {
         mHandler.post {
             // initialize and setup exo player
             player = SimpleExoPlayer.Builder(applicationContext).build()
-            // setup error listener
-            player.addListener(object : Player.EventListener {
-                override fun onPlayerError(error: ExoPlaybackException) {
-                    log.debug("ExoPlayer error, ${error.sourceException.message}")
-                    this@BackgroundSumysService.stopSelf()
-                }
-            })
         }
     }
 

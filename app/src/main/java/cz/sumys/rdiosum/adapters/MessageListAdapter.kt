@@ -56,10 +56,10 @@ class MessageListAdapter (): RecyclerView.Adapter<MessageListAdapter.ViewHolder>
          * Attach item data to binding
          */
         fun bind(item: BaseMessage) {
-            messageDate.text = dateFormatter.format(item.messageTimestamp)
+            messageDate.text = dateFormatter.format(item.messageTimestamp*1000)
             messageSender.text = item.messageSender
             messageText.text = item.messageText
-            messageTimestamp.text = timeFormatter.format(item.messageTimestamp)
+            messageTimestamp.text = timeFormatter.format(item.messageTimestamp*1000)
             if (item.messageSender in SUMYS_HEADQUARTERS) {
                 messageIcon.setImageResource(R.drawable.punk)
             } else {
