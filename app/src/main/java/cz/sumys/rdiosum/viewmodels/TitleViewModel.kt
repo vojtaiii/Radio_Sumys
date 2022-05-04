@@ -1,10 +1,8 @@
 package cz.sumys.rdiosum.viewmodels
 
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -1,13 +1,10 @@
 package cz.sumys.rdiosum.fragments
 
 import android.annotation.SuppressLint
-import android.app.Notification
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -15,18 +12,14 @@ import android.os.Looper
 import android.support.v4.media.session.MediaSessionCompat
 import android.view.*
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
-import cz.sumys.rdiosum.utilities.ActionReceiver
 import cz.sumys.rdiosum.R
-import cz.sumys.rdiosum.applications.SumysApplication.Companion.CHANNEL_1_ID
 import cz.sumys.rdiosum.viewmodels.TitleViewModel
 import cz.sumys.rdiosum.utilities.Utils
 import cz.sumys.rdiosum.activities.MainActivity

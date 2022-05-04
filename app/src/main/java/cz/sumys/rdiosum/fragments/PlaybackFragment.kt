@@ -8,12 +8,8 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import cz.sumys.rdiosum.R
 import cz.sumys.rdiosum.databinding.FragmentPlaybackBinding
@@ -23,7 +19,7 @@ import org.slf4j.LoggerFactory
 class PlaybackFragment: DialogFragment() {
     val log: Logger = LoggerFactory.getLogger(PlaybackFragment::class.java)
     private lateinit var binding: FragmentPlaybackBinding
-    private lateinit var playbackPlayer: SimpleExoPlayer
+    private lateinit var playbackPlayer: ExoPlayer
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -41,7 +37,7 @@ class PlaybackFragment: DialogFragment() {
                 .build()
 
         // the player instance
-        playbackPlayer = SimpleExoPlayer.Builder(requireContext()).build().apply {
+        playbackPlayer = ExoPlayer.Builder(requireContext()).build().apply {
             setAudioAttributes(audioAttributes, true)
         }
         playbackView.player = playbackPlayer
