@@ -20,6 +20,10 @@ import cz.sumys.rdiosum.databinding.ActivityMainBinding
 import cz.sumys.rdiosum.utilities.BackgroundSumysService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import android.content.pm.PackageInfo
+import android.util.Base64
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,7 +56,6 @@ class MainActivity : AppCompatActivity() {
         notificationManager = NotificationManagerCompat.from(this)
 
         checkPermissions()
-
     }
 
     // UP button press

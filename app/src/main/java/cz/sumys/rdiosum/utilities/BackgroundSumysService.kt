@@ -2,6 +2,7 @@ package cz.sumys.rdiosum.utilities
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory
 
 class BackgroundSumysService: Service() {
     val log: Logger = LoggerFactory.getLogger(MainActivity::class.java)
-    private lateinit var player: SimpleExoPlayer
+    private lateinit var player: ExoPlayer
 
     private lateinit var wakeLock: PowerManager.WakeLock
     private lateinit var mHandlerThread: HandlerThread
@@ -55,7 +56,7 @@ class BackgroundSumysService: Service() {
         mHandler = Handler(mHandlerThread.looper)
         mHandler.post {
             // initialize and setup exo player
-            player = SimpleExoPlayer.Builder(applicationContext).build()
+            player = ExoPlayer.Builder(applicationContext).build()
         }
     }
 
@@ -85,7 +86,7 @@ class BackgroundSumysService: Service() {
                     // exo player plays the media item object
                     val sumysItem = MediaItem.fromUri(TitleViewModel.STREAM_URL)
                     // set the media item to be played
-                    player.setMediaItem(sumysItem);
+                    player.setMediaItem(sumysItem)
                     // Prepare the player.
                     player.prepare()
                     // Start the playback.
@@ -133,19 +134,19 @@ class BackgroundSumysService: Service() {
         activityIntent.action = Intent.ACTION_MAIN
         activityIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val contentIntent = PendingIntent.getActivity(context, 0, activityIntent, 0)
+        val contentIntent = PendingIntent.getActivity(context, 0, activityIntent, FLAG_IMMUTABLE)
 
         // action intent for stop button
         val actionStopIntent = Intent(context, ActionReceiver::class.java)
         actionStopIntent.putExtra("action", "stop")
         val pActionStopIntent = PendingIntent.getBroadcast(context,
-                1, actionStopIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                1, actionStopIntent, FLAG_IMMUTABLE)
 
         // action intent for notification dismiss
         val actionDeleteIntent = Intent(context, ActionReceiver::class.java)
         actionDeleteIntent.putExtra("action", "delete")
         val pActionDeleteIntent = PendingIntent.getBroadcast(context,
-                1, actionDeleteIntent, 0)
+                1, actionDeleteIntent, FLAG_IMMUTABLE)
 
         // picture and its bitmap
         val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)

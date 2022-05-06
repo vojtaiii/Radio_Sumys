@@ -16,13 +16,14 @@ import org.slf4j.LoggerFactory
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.lang.Exception
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
+import com.facebook.GraphResponse
+import com.facebook.AccessToken
+import com.facebook.HttpMethod
+import com.facebook.GraphRequest
+
 
 class NewsViewModel(val database: NewsDatabaseDao, application: Application)
     : AndroidViewModel(application) {
@@ -37,22 +38,16 @@ class NewsViewModel(val database: NewsDatabaseDao, application: Application)
     val spinning: LiveData<Boolean>
         get() = _spinning
 
-    // tracks last message id for subsequent updates
-    var lastMsgId = ""
-
     //----------------------------------------------------------------------------------------------
 
     /**
-     * Invoke the hear() suspend function and wait for its result, store response
+     * Invoke the hearFBPageAndStoreResponse() suspend function, wait for the result,
+     * store the response.
      */
     fun hearFB() {
         viewModelScope.launch(Dispatchers.IO) {
             _spinning.postValue(true)
-
-            val response = hear() // the server side
-            parseAndStoreResponse(response.toString()) // parse nad store the received response
-            //_finishedResponse.postValue(true)
-
+             hearFBPageAndStoreResponse()
             _spinning.postValue(false)
         }
     }
@@ -77,7 +72,10 @@ class NewsViewModel(val database: NewsDatabaseDao, application: Application)
      * Parse the received JSON response and store it in the database
      */
     private fun parseAndStoreResponse(response: String) {
-        if (response == "") return
+        if (response == "") {
+            log.debug("Parsing empty response, exiting...")
+            return
+        }
 
         // assign a reader and perform checking
         val reader: JSONObject
@@ -87,6 +85,7 @@ class NewsViewModel(val database: NewsDatabaseDao, application: Application)
             log.error("Response is probably different then expected, ${e.printStackTrace()}")
             return
         }
+        log.debug("Processing FB feed response, response = $response")
 
         // read single news information and store it in arrays
         val messagesArray = reader.getJSONArray("data")
@@ -146,45 +145,30 @@ class NewsViewModel(val database: NewsDatabaseDao, application: Application)
         log.debug("New messages written into the database")
     }
 
+    //----------------------------------------------------------------------------------------------
+
     /**
-     * Send POST data to Facebook graph API, wait for and store the result
+     * Access the page feed via FB API and store the response.
      */
-    private suspend fun hear() = withContext(Dispatchers.IO) {
-        // open a connection to the web script URL
-        val url = URL(URL_GRAPH_PAGE_FEED)
-        val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
-
-        // set the request method to POST
-        connection.requestMethod = "GET"
-
-        // set the request property to JSON
-        connection.setRequestProperty("Content-Type", "application/json; utf-8")
-        // set the response property to JSON
-        connection.setRequestProperty("Accept", "application/json")
-
-        // read the server`s response
-        try {
-            val response = StringBuilder()
-            BufferedReader(
-                InputStreamReader(connection.inputStream, "utf-8")
-            ).use { br ->
-                var responseLine: String?
-                while (br.readLine().also { responseLine = it } != null) {
-                    response.append(responseLine!!.trim { it <= ' ' })
+    private suspend fun hearFBPageAndStoreResponse() = withContext(Dispatchers.IO) {
+        /* make the API call */
+        GraphRequest(AccessToken.getCurrentAccessToken(),
+        "/$PAGE_ID/feed?fields=created_time,message,full_picture",
+        null,
+        HttpMethod.GET,
+            object : GraphRequest.Callback {
+                override fun onCompleted(response: GraphResponse) {
+                    log.debug("Graph response retrieved, token = ${AccessToken.getCurrentAccessToken()}")
+                    parseAndStoreResponse(response.rawResponse.toString())
                 }
-                log.debug("RESPONSE: $response")
             }
-            return@withContext response
-        } catch (e:Exception) {
-            log.error("Failed to access a fb graph server response, ${e.printStackTrace()}")
-            return@withContext ""
-        }
+        ).executeAsync()
     }
 
     //----------------------------------------------------------------------------------------------
 
     companion object {
-        private const val ACCESS_TOKEN = "EAAHPebhRLq0BAObVWqxHKQ2l8PUrzMshXpGly7UL7tutpU9dFIc0wZBJWOC2o5Oi8Ra9VajuM8gL9vT0gEvBfHcpezoMXZCA2ZBTCAakkpeyktNu97JE9UQrNWT7jf7MDaoUgVjAsQnhMp4iV6Xeg1Vus5BhyAzGH6SxzvLEWVPmWq2MLZCs"
-        private const val URL_GRAPH_PAGE_FEED = "https://graph.facebook.com/102046414836971/feed?fields=created_time,message,full_picture,access_token&access_token=$ACCESS_TOKEN"
+        private const val PAGE_ID = "102046414836971"
+        private const val URL_GRAPH_PAGE_FEED = "https://graph.facebook.com/102046414836971/feed?fields=created_time,message,full_picture"
     }
     }

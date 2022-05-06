@@ -7,9 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
 import cz.sumys.rdiosum.R
 import cz.sumys.rdiosum.adapters.NewsListAdapter
 import cz.sumys.rdiosum.database.NewsDatabase
@@ -30,6 +36,9 @@ class NewsFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater,
             R.layout.fragment_news, container, false)
+
+        // notice about facebook connection
+        val facebookNotice = binding.facebookNotice
 
         // -----------------------------------------------------------------------------------------
         // setup viewmodel
@@ -54,7 +63,35 @@ class NewsFragment : Fragment() {
 
         // erase the database when fragment is opened
         newsViewModel.clearDatabase()
-        if (internetCheck()) newsViewModel.hearFB()
+        // this scenario is activated if the token is already retrieved but the fragment is reopened
+        if (AccessToken.getCurrentAccessToken() != null) {
+            log.debug("FB login successful, access token = ${AccessToken.getCurrentAccessToken()}")
+            log.debug("Starting to access FB page feed...")
+            facebookNotice.isVisible = false
+            newsViewModel.hearFB()
+        }
+
+        //------------------------------------------------------------------------------------------
+        // FB login
+        val callbackManager = CallbackManager.Factory.create()
+        val loginButton = binding.loginButton
+        //login callback
+        loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(result: LoginResult) {
+                facebookNotice.isVisible = false
+                if (internetCheck()) newsViewModel.hearFB() // start the retrieval process
+            }
+
+            override fun onCancel() {
+                log.debug("FB login cancelled")
+                facebookNotice.isVisible = true
+            }
+
+            override fun onError(error: FacebookException) {
+                log.debug("FB login error, $error")
+                facebookNotice.isVisible = true
+            }
+        })
 
         //------------------------------------------------------------------------------------------
 

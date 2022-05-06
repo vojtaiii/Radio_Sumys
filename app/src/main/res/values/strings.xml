@@ -33,4 +33,9 @@
     <string name="sumys_email">radio@sumys.cz</string>
     <string name="working_text">Na této sekci se usilovně pracuje &#128169;</string>
     <string name="archiv_info">Vyber si pořad</string>
+    <string name="facebookNotice">K přístupu k novinkám se musíš přihlásit přes fb tlačítkem nahoře</string>
+
+    <string name="facebook_app_id">509596667031213</string>
+    <string name="fb_login_protocol_scheme">fb509596667031213</string>
+    <string name="facebook_client_token">45d7e4203bb5b5ad361708c724b41bc8</string>
 </resources>
