@@ -54,7 +54,8 @@
 
         <service android:name=".utilities.BackgroundSumysService"
             android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true">
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
 
             <intent-filter>
                 <action android:name="spinning" />

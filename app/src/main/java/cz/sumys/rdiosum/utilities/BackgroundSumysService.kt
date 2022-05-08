@@ -8,11 +8,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.graphics.BitmapFactory
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.IBinder
-import android.os.PowerManager
+import android.os.*
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -37,7 +35,14 @@ class BackgroundSumysService: Service() {
 
     override fun onCreate() {
         log.debug("BackgroundSumysService created")
-        startForeground(1, createSongNotification(applicationContext, "Rádio Sumýš", "Blbě čumíš"))
+        createSongNotification(applicationContext, "Rádio Sumýš", "Blbě čumíš")?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(1,
+                        it, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            } else {
+                startForeground(1, it)
+            }
+        }
 
         // setup notifications manager
         notificationManager = applicationContext?.let { NotificationManagerCompat.from(it) }!!
@@ -151,8 +156,6 @@ class BackgroundSumysService: Service() {
         // picture and its bitmap
         val picture = BitmapFactory.decodeResource(resources, R.drawable.sumys_notification)
 
-        val mediaSession = MediaSessionCompat(context, "sumys_tag")
-
         // define the notification looks
         return context.let {
             NotificationCompat.Builder(it, SumysApplication.CHANNEL_1_ID)
@@ -160,10 +163,6 @@ class BackgroundSumysService: Service() {
                 .setLargeIcon(picture)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setStyle(
-                    androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mediaSession.sessionToken)
-                )
                 .setContentIntent(contentIntent)
                 .addAction(R.drawable.ic_notif_stop, "stop", pActionStopIntent)
                 .setDeleteIntent(pActionDeleteIntent)
